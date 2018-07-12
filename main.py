@@ -1,12 +1,16 @@
-import pandas as pd
+import matplotlib.pyplot as plt
+from mpl_finance import candlestick2_ohlc
 # https://stackoverflow.com/questions/50394873/import-pandas-datareader-gives-importerror-cannot-import-name-is-list-like
+import pandas as pd
 pd.core.common.is_list_like = pd.api.types.is_list_like
-from pandas_datareader import data as pdr
-import fix_yahoo_finance as yf
-# https://github.com/pydata/pandas-datareader/issues/487
-yf.pdr_override()
+import pandas_datareader as web
 
-data = pdr.get_data_yahoo('AMZN')
-data = data[['Open', 'High', 'Low', 'Adj Close', 'Volume']]
+stocks = ['AMZN', 'AAPL']
+data = web.DataReader(stocks, 'morningstar')
 
-print(data.head)
+for stock in stocks:
+    fig, ax = plt.subplots()
+    ohlc = data.xs(stock)
+    candlestick2_ohlc(ax, ohlc['Open'], ohlc['High'], ohlc['Low'], ohlc['Close'], width=0.6)
+    ax.set_title(stock)
+    plt.show()
