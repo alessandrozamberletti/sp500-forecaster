@@ -50,8 +50,6 @@ y = np.array(y)
 print y.shape
 print np.count_nonzero(y)
 
-exit(0)
-
 model = Sequential()
 model.add(Conv2D(20, (3, 3), padding="same", input_shape=(12, 12, 3)))
 model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
