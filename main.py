@@ -1,66 +1,64 @@
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential
-from keras.layers import LSTM, Dense, Dropout, Flatten, BatchNormalization, Convolution2D, MaxPooling2D, Activation
+from keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D
 # https://stackoverflow.com/questions/50394873/import-pandas-datareader-gives-importerror-cannot-import-name-is-list-like
-import pandas
-pandas.core.common.is_list_like = pandas.api.types.is_list_like
+import pandas as pd
+pd.core.common.is_list_like = pd.api.types.is_list_like
 import pandas_datareader as web
-import cv2
+from datapackage import Package
+import random
 
+print 'Collecting SP500 stocks..'
+package = Package('https://datahub.io/core/s-and-p-500-companies/datapackage.json')
+for resource in package.resources:
+    if resource.descriptor['datahub']['type'] == 'derived/csv':
+        sp500 = [s[0].encode('utf-8') for s in resource.read()]
 
-def build_samples(stocks, timesteps):
-    data = web.DataReader(stocks, 'morningstar')
-    X = []
-    y = []
-    for stock in stocks:
-        ohlc = data.xs(stock).values
-        for t in range(0, ohlc.shape[0] - timesteps - 1):
-            window = ohlc[t:t + timesteps, 1:4]
-            future = ohlc[t + timesteps + 1, 1:4]
-            y.append(future[-1] > window[-1, -1])
+stocks = random.sample(sp500, 50)
+print('Retrieving data for: {}'.format(', '.join(stocks)))
+timestep = 144
+data = web.DataReader(stocks, data_source='morningstar')
 
-            p0 = window[0, :]
-            window = [[(i[0]/p0[0])-1, (i[1]/p0[1])-1, (i[2]/p0[2])-1] for i in window]
+print('Splitting into time samples..')
+X = []
+y = []
+for stock in stocks:
+    ohlc = data.xs(stock).values
+    for t in range(0, ohlc.shape[0] - timestep - 30):
+        current = ohlc[t:t + timestep, 1:4]
+        future = ohlc[t + timestep:t + timestep + 30, 3]
 
-            xx = np.array(window)
-            xx = xx.reshape(12, 12, 3)
-            # cv2.imshow('', xx)
-            # cv2.waitKey(10)
-            X.append(xx)
+        future_avg_price = np.average(future)
+        current_avg_price = np.average(current[:, -1])
+        y.append(future_avg_price > current_avg_price)
 
-    return np.array(X), np.array(y)
+        p0 = current[0, :]
+        current = [[(i[0]/p0[0])-1, (i[1]/p0[1])-1, (i[2]/p0[2])-1] for i in current]
+        current = np.array(current).reshape(12, 12, 3)
+        X.append(current)
 
+        # current *= (255.0 / current.max())
+        # import cv2
+        # cv2.imshow('', current)
+        # cv2.waitKey(10)
 
-ts = 144
-X_train, y_train = build_samples(['AMZN',
-                                  'AAPL',
-                                  'NVDA',
-                                  'BABA',
-                                  'MSFT',
-                                  'IBM',
-                                  'CARB',
-                                  'BIDU',
-                                  'GDDY',
-                                  'MOMO',
-                                  'FB',
-                                  'MMM',
-                                  'ACN',
-                                  'ADBE',
-                                  'T'], ts)
-X_test, y_test = build_samples(['NVDA'], ts)
+print('{} time windows collected'.format(len(X)))
+
+X = np.array(X)
+y = np.array(y)
+
+print y.shape
+print np.count_nonzero(y)
+
+exit(0)
 
 model = Sequential()
-
-model.add(Convolution2D(20, 3, 3, border_mode="same", input_shape=(12, 12, 3)))
+model.add(Conv2D(20, (3, 3), padding="same", input_shape=(12, 12, 3)))
 model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
-model.add(Dropout(0.2))
+model.add(Conv2D(20, (3, 3), padding="same"))
+model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
 model.add(Flatten())
 model.add(Dense(128))
-model.add(Dropout(0.2))
 model.add(Dense(units=1, activation='sigmoid'))
-
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-
-print X_train.shape
-model.fit(X_train, y_train, shuffle=True, epochs=100, validation_split=0.33)
+model.fit(X, y, shuffle=True, epochs=100, validation_split=0.33)
