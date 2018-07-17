@@ -14,7 +14,7 @@ for resource in package.resources:
     if resource.descriptor['datahub']['type'] == 'derived/csv':
         sp500 = [s[0].encode('utf-8') for s in resource.read()]
 
-stocks = random.sample(sp500, 50)
+stocks = random.sample(sp500, 25)
 print('Retrieving data for: {}'.format(', '.join(stocks)))
 timestep = 144
 data = web.DataReader(stocks, data_source='morningstar')
@@ -37,15 +37,13 @@ for stock in stocks:
         current = np.array(current).reshape(12, 12, 3)
         X.append(current)
 
-        # current *= (255.0 / current.max())
-        # import cv2
-        # cv2.imshow('', current)
-        # cv2.waitKey(10)
-
 print('{} time windows collected'.format(len(X)))
 
 X = np.array(X)
 y = np.array(y)
+false_count = len(y) - np.count_nonzero(y)
+true_idx, = np.where(y)
+
 
 print y.shape
 print np.count_nonzero(y)
