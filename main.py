@@ -1,7 +1,6 @@
 import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D
-# https://stackoverflow.com/questions/50394873/import-pandas-datareader-gives-importerror-cannot-import-name-is-list-like
 import pandas as pd
 pd.core.common.is_list_like = pd.api.types.is_list_like
 import pandas_datareader as web
@@ -43,10 +42,6 @@ X = np.array(X)
 y = np.array(y)
 false_count = len(y) - np.count_nonzero(y)
 true_idx, = np.where(y)
-
-
-print y.shape
-print np.count_nonzero(y)
 
 model = Sequential()
 model.add(Conv2D(20, (3, 3), padding="same", input_shape=(12, 12, 3)))
