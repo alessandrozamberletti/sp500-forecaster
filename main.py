@@ -1,12 +1,13 @@
 import numpy as np
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D
+from keras.layers import Dense, Flatten, Conv2D, MaxPooling2D
 import pandas as pd
 pd.core.common.is_list_like = pd.api.types.is_list_like
 import pandas_datareader as web
 from datapackage import Package
 import random
 
+# TODO: check how to speed it up, avoid locking for too long
 print 'Collecting SP500 stocks..'
 package = Package('https://datahub.io/core/s-and-p-500-companies/datapackage.json')
 for resource in package.resources:
@@ -18,6 +19,8 @@ print('Retrieving data for: {}'.format(', '.join(stocks)))
 timestep = 144
 data = web.DataReader(stocks, data_source='morningstar')
 
+# TODO: check if the samples with their relative gt are correctly computed
+# TODO: plot data window + gt for random stocks
 print('Splitting into time samples..')
 X = []
 y = []
@@ -38,6 +41,7 @@ for stock in stocks:
 
 print('{} time windows collected'.format(len(X)))
 
+# TODO: balance dataset, #downtrend windows = #uptrend windows
 X = np.array(X)
 y = np.array(y)
 false_count = len(y) - np.count_nonzero(y)
@@ -53,3 +57,5 @@ model.add(Dense(128))
 model.add(Dense(units=1, activation='sigmoid'))
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 model.fit(X, y, shuffle=True, epochs=100, validation_split=0.33)
+
+# TODO: plot test data windows + classification vs expectation for random stocks
