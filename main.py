@@ -7,6 +7,7 @@ import pandas_datareader as web
 from datapackage import Package
 import random
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import MinMaxScaler
 
 # TODO: check how to speed it up, avoid locking for too long
 print 'Collecting SP500 stocks..'
@@ -23,17 +24,18 @@ data = web.DataReader(stocks, data_source='morningstar')
 # TODO: check if the samples with their relative gt are correctly computed
 # TODO: plot data window + gt for random stocks
 print('Splitting into time samples..')
-debug = True
 X = []
 y = []
 
+debug = True
 future_window = 30
 plt.ion()
+scaler = MinMaxScaler(feature_range=(0, 1))
 for stock in stocks:
     ohlc = data.xs(stock).values
     for t in range(0, ohlc.shape[0] - timestep - future_window):
         current = ohlc[t:t + timestep, 1:4]
-        future = ohlc[t + timestep - 1:t + timestep - 1 + future_window, 3]
+        future = ohlc[t + timestep - 1:t + timestep - 1 + future_window, 1:4]
 
         future_avg_price = np.average(future)
         current_avg_price = np.average(current[:, -1])
@@ -41,33 +43,40 @@ for stock in stocks:
 
         p0 = current[0, :]
         current = np.array([[(i[0]/p0[0])-1, (i[1]/p0[1])-1, (i[2]/p0[2])-1] for i in current])
-        future = np.array([(i/p0[-1])-1 for i in future])
+        future = np.array([[(i[0]/p0[0])-1, (i[1]/p0[1])-1, (i[2]/p0[2])-1] for i in future])
+
+        current = scaler.fit_transform(current)
+        future = scaler.transform(future)
         X.append(current.reshape(12, 12, 3))
         y.append(trend)
 
         if debug:
             plt.cla()
             plt.plot(current[:, -1])
-            plt.plot([(current_avg_price/p0[-1])-1 for i in range(len(current))],
+            plt.plot([np.average(current) for i in range(timestep)],
                      color='black',
                      label='current avg price')
 
             xi = [i for i in range(timestep - 1, timestep - 1 + future_window)]
             color = 'green' if trend else 'red'
             plt.plot(xi,
-                     future,
+                     future[:, -1],
                      linestyle='--')
             plt.plot(xi,
-                     [(future_avg_price/p0[-1])-1 for i in range(len(xi))],
+                     [np.average(future) for i in range(len(xi))],
                      color=color,
                      label='future avg price')
 
+            plt.axvline(x=timestep-1,
+                        color='gray',
+                        linestyle=':')
+
             plt.title('Train sample - SYMBOL: {0}'.format(stock))
             plt.xlabel('days')
-            plt.ylabel('scaled closing price')
+            plt.ylabel('normalized closing price')
             plt.legend(loc='upper left')
             plt.show()
-            plt.pause(.1)
+            plt.pause(.001)
 
 print('{} time windows collected'.format(len(X)))
 
