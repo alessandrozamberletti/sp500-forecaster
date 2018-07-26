@@ -30,6 +30,8 @@ y = []
 debug = True
 future_window = 30
 plt.ion()
+f, (ax1, ax2) = plt.subplots(1, 2)
+
 scaler = MinMaxScaler(feature_range=(0, 1))
 for stock in stocks:
     ohlc = data.xs(stock).values
@@ -51,30 +53,31 @@ for stock in stocks:
         y.append(trend)
 
         if debug:
-            plt.cla()
-            plt.plot(current[:, -1])
-            plt.plot([np.average(current) for i in range(timestep)],
+            f.suptitle('Train Samples - SYMBOL:{0}'.format(stock))
+
+            ax1.cla()
+
+            ax1.plot(current[:, -1])
+            ax1.plot([np.average(current) for i in range(timestep)],
                      color='black',
                      label='current avg price')
 
             xi = [i for i in range(timestep - 1, timestep - 1 + future_window)]
             color = 'green' if trend else 'red'
-            plt.plot(xi,
-                     future[:, -1],
-                     linestyle='--')
-            plt.plot(xi,
-                     [np.average(future) for i in range(len(xi))],
-                     color=color,
-                     label='future avg price')
+            ax1.plot(xi, future[:, -1], linestyle='--')
+            ax1.plot(xi, [np.average(future) for i in range(len(xi))], color=color, label='future avg price')
 
-            plt.axvline(x=timestep-1,
-                        color='gray',
-                        linestyle=':')
+            ax1.axvline(x=timestep-1, color='gray', linestyle=':')
 
-            plt.title('Train sample - SYMBOL: {0}'.format(stock))
-            plt.xlabel('days')
-            plt.ylabel('normalized closing price')
-            plt.legend(loc='upper left')
+            ax1.set_title('data chart')
+            ax1.set_xlabel('days')
+            ax1.set_ylabel('normalized closing price')
+            ax1.legend(loc='upper left')
+
+            ax2.cla()
+            ax2.set_title('visual represantion')
+            ax2.imshow(X[-1])
+
             plt.show()
             plt.pause(.001)
 
