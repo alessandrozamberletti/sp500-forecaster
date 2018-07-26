@@ -47,26 +47,24 @@ for stock in stocks:
 
         if debug:
             plt.cla()
-            plt.plot(current[:, -1],
-                     color='black')
+            plt.plot(current[:, -1])
             plt.plot([(current_avg_price/p0[-1])-1 for i in range(len(current))],
-                     color='gray',
+                     color='black',
                      label='current avg price')
 
             xi = [i for i in range(timestep - 1, timestep - 1 + future_window)]
             color = 'green' if trend else 'red'
             plt.plot(xi,
                      future,
-                     linestyle='--',
-                     color='gray')
+                     linestyle='--')
             plt.plot(xi,
                      [(future_avg_price/p0[-1])-1 for i in range(len(xi))],
                      color=color,
                      label='future avg price')
 
-            plt.title('Sample [{0}]'.format(stock))
+            plt.title('Train sample - SYMBOL: {0}'.format(stock))
             plt.xlabel('days')
-            plt.ylabel('normalized closing price')
+            plt.ylabel('scaled closing price')
             plt.legend(loc='upper left')
             plt.show()
             plt.pause(.1)
