@@ -6,6 +6,7 @@ pd.core.common.is_list_like = pd.api.types.is_list_like
 import pandas_datareader as web
 from datapackage import Package
 import random
+import matplotlib.pyplot as plt
 
 # TODO: check how to speed it up, avoid locking for too long
 print 'Collecting SP500 stocks..'
@@ -27,7 +28,6 @@ X = []
 y = []
 
 future_window = 30
-import matplotlib.pyplot as plt
 plt.ion()
 for stock in stocks:
     ohlc = data.xs(stock).values
