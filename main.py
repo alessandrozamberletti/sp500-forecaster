@@ -40,10 +40,8 @@ for stock in stocks:
         trend = future_avg_price > current_avg_price
 
         p0 = current[0, :]
-        current = [[(i[0]/p0[0])-1, (i[1]/p0[1])-1, (i[2]/p0[2])-1] for i in current]
-        future = [(i/p0[-1])-1 for i in future]
-        current = np.array(current)
-        future = np.array(future)
+        current = np.array([[(i[0]/p0[0])-1, (i[1]/p0[1])-1, (i[2]/p0[2])-1] for i in current])
+        future = np.array([(i/p0[-1])-1 for i in future])
         X.append(current.reshape(12, 12, 3))
         y.append(trend)
 
