@@ -18,7 +18,7 @@ for resource in package.resources:
     if resource.descriptor['datahub']['type'] == 'derived/csv':
         sp500 = [s[0].encode('utf-8') for s in resource.read()]
 
-stocks = random.sample(sp500, 1)
+stocks = random.sample(sp500, 10)
 print('Retrieving data for: {}'.format(', '.join(stocks)))
 data = web.DataReader(stocks, data_source='morningstar')
 
@@ -26,7 +26,7 @@ data = web.DataReader(stocks, data_source='morningstar')
 data = data[data['Volume'] != 0]
 
 # TODO: parametrize script
-debug = True
+train_debug = False
 timestep = 144
 future_window = 30
 ssize = int(sqrt(timestep))
@@ -38,7 +38,7 @@ print('Splitting into time samples..')
 X = []
 y = []
 
-if debug:
+if train_debug:
     plt.ion()
     f = plt.figure()
     gs = gridspec.GridSpec(3, 2)
@@ -68,7 +68,7 @@ for stock in stocks:
         X.append(current.reshape(ssize, ssize, chns))
         y.append(trend)
 
-        if debug:
+        if train_debug:
             f.suptitle('Chart&Visual Train Samples - SYMBOL:{0}'.format(stock))
 
             chart_ax.cla()
@@ -97,17 +97,23 @@ for stock in stocks:
                 ax.imshow(X[-1][:, :, i], cmap='gray')
 
             plt.show()
-            plt.pause(.00001)
+            plt.pause(.0001)
 
 print('{} time windows collected'.format(len(X)))
 
-exit(0)
-
-# TODO: balance dataset, #downtrend windows = #uptrend windows
 X = np.array(X)
 y = np.array(y)
-false_count = len(y) - np.count_nonzero(y)
+
+false_windows = len(y) - np.count_nonzero(np.array(y))
 true_idx, = np.where(y)
+np.random.shuffle(true_idx)
+
+print('{} downtrend and {} uptrend windows'.format(false_windows, len(true_idx)))
+
+X = np.delete(X, true_idx[false_windows:], axis=0)
+y = np.delete(y, true_idx[false_windows:])
+
+print('dataset balanced to {} downtrend and {} uptrend windows'.format(len(np.where(y == 0)[0]), len(np.where(y)[0])))
 
 model = Sequential()
 model.add(Conv2D(20, (3, 3), padding="same", input_shape=(12, 12, 3)))
