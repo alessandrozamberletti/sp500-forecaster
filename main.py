@@ -7,6 +7,7 @@ import pandas_datareader as web
 from datapackage import Package
 import random
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 from sklearn.preprocessing import MinMaxScaler
 
 # TODO: check how to speed it up, avoid locking for too long
@@ -29,8 +30,16 @@ y = []
 
 debug = True
 future_window = 30
+chns = 3
 plt.ion()
-f, (ax1, ax2) = plt.subplots(1, 2)
+
+f = plt.figure()
+gs = gridspec.GridSpec(3, 2)
+ax1 = plt.subplot(gs[:, 0])
+visual_ax = []
+visual_ax_titles = ['Open', 'High', 'Close']
+for i in range(chns):
+    visual_ax.append(plt.subplot(gs[i, -1]))
 
 scaler = MinMaxScaler(feature_range=(0, 1))
 for stock in stocks:
@@ -49,11 +58,11 @@ for stock in stocks:
 
         current = scaler.fit_transform(current)
         future = scaler.transform(future)
-        X.append(current.reshape(12, 12, 3))
+        X.append(current.reshape(12, 12, chns))
         y.append(trend)
 
         if debug:
-            f.suptitle('Train Samples - SYMBOL:{0}'.format(stock))
+            f.suptitle('Chart&Visual Train Samples - SYMBOL:{0}'.format(stock))
 
             ax1.cla()
 
@@ -69,14 +78,17 @@ for stock in stocks:
 
             ax1.axvline(x=timestep-1, color='gray', linestyle=':')
 
-            ax1.set_title('data chart')
+            ax1.set_title('Chart')
             ax1.set_xlabel('days')
             ax1.set_ylabel('normalized closing price')
             ax1.legend(loc='upper left')
 
-            ax2.cla()
-            ax2.set_title('visual represantion')
-            ax2.imshow(X[-1])
+            for i in range(len(visual_ax)):
+                ax = visual_ax[i]
+                ax.cla()
+                ax.axis('off')
+                ax.set_title(visual_ax_titles[i])
+                ax.imshow(X[-1][:, :, i], cmap='gray')
 
             plt.show()
             plt.pause(.001)
