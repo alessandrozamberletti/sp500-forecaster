@@ -22,17 +22,19 @@ print('Retrieving data for: {}'.format(', '.join(stocks)))
 timestep = 144
 data = web.DataReader(stocks, data_source='morningstar')
 
+# PARAMS
+# TODO: parametrize script
+debug = True
+future_window = 30
+chns = 3
+
 # GATHER TRAIN SAMPLES
 print('Splitting into time samples..')
 X = []
 y = []
 
-debug = True
-future_window = 30
-chns = 3
-plt.ion()
-
 if debug:
+    plt.ion()
     f = plt.figure()
     gs = gridspec.GridSpec(3, 2)
     chart_ax = plt.subplot(gs[:, 0])
