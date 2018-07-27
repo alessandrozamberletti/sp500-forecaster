@@ -22,8 +22,7 @@ print('Retrieving data for: {}'.format(', '.join(stocks)))
 timestep = 144
 data = web.DataReader(stocks, data_source='morningstar')
 
-# TODO: check if the samples with their relative gt are correctly computed
-# TODO: plot data window + gt for random stocks
+# GATHER TRAIN SAMPLES
 print('Splitting into time samples..')
 X = []
 y = []
@@ -36,7 +35,7 @@ plt.ion()
 if debug:
     f = plt.figure()
     gs = gridspec.GridSpec(3, 2)
-    ax1 = plt.subplot(gs[:, 0])
+    chart_ax = plt.subplot(gs[:, 0])
     visual_ax = []
     visual_ax_titles = ['Open', 'High', 'Close']
     for i in range(chns):
@@ -65,22 +64,23 @@ for stock in stocks:
         if debug:
             f.suptitle('Chart&Visual Train Samples - SYMBOL:{0}'.format(stock))
 
-            ax1.cla()
+            chart_ax.cla()
 
-            ax1.plot(current[:, -1])
-            ax1.plot([np.average(current) for i in range(timestep)], color='black', label='current avg price')
+            chart_ax.plot(current[:, -1])
+            chart_ax.plot([np.average(current) for i in range(timestep)], color='black', label='current avg price')
 
             xi = [i for i in range(timestep - 1, timestep - 1 + future_window)]
             color = 'green' if trend else 'red'
-            ax1.plot(xi, future[:, -1], linestyle='--')
-            ax1.plot(xi, [np.average(future) for i in range(len(xi))], color=color, label='future avg price')
+            chart_ax.plot(xi, future[:, -1], linestyle='--')
+            chart_ax.plot(xi, [np.average(future) for i in range(len(xi))], color=color, label='future avg price')
 
-            ax1.axvline(x=timestep-1, color='gray', linestyle=':')
+            # PRESENT vs FUTURE
+            chart_ax.axvline(x=timestep - 1, color='gray', linestyle=':')
 
-            ax1.set_title('Chart')
-            ax1.set_xlabel('days')
-            ax1.set_ylabel('normalized closing price')
-            ax1.legend(loc='upper left')
+            chart_ax.set_title('Chart')
+            chart_ax.set_xlabel('days')
+            chart_ax.set_ylabel('normalized closing price')
+            chart_ax.legend(loc='upper left')
 
             for i in range(len(visual_ax)):
                 ax = visual_ax[i]
