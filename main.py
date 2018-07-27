@@ -21,9 +21,10 @@ for resource in package.resources:
 stocks = random.sample(sp500, 1)
 print('Retrieving data for: {}'.format(', '.join(stocks)))
 data = web.DataReader(stocks, data_source='morningstar')
-print data.head
 
-# PARAMS
+# DROP WEEKENDS
+data = data[data['Volume'] != 0]
+
 # TODO: parametrize script
 debug = True
 timestep = 144
