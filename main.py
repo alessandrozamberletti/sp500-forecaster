@@ -33,13 +33,14 @@ future_window = 30
 chns = 3
 plt.ion()
 
-f = plt.figure()
-gs = gridspec.GridSpec(3, 2)
-ax1 = plt.subplot(gs[:, 0])
-visual_ax = []
-visual_ax_titles = ['Open', 'High', 'Close']
-for i in range(chns):
-    visual_ax.append(plt.subplot(gs[i, -1]))
+if debug:
+    f = plt.figure()
+    gs = gridspec.GridSpec(3, 2)
+    ax1 = plt.subplot(gs[:, 0])
+    visual_ax = []
+    visual_ax_titles = ['Open', 'High', 'Close']
+    for i in range(chns):
+        visual_ax.append(plt.subplot(gs[i, -1]))
 
 scaler = MinMaxScaler(feature_range=(0, 1))
 for stock in stocks:
@@ -67,9 +68,7 @@ for stock in stocks:
             ax1.cla()
 
             ax1.plot(current[:, -1])
-            ax1.plot([np.average(current) for i in range(timestep)],
-                     color='black',
-                     label='current avg price')
+            ax1.plot([np.average(current) for i in range(timestep)], color='black', label='current avg price')
 
             xi = [i for i in range(timestep - 1, timestep - 1 + future_window)]
             color = 'green' if trend else 'red'
