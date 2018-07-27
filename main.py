@@ -9,6 +9,7 @@ import random
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from sklearn.preprocessing import MinMaxScaler
+from math import sqrt
 
 # TODO: check how to speed it up, avoid locking for too long
 print 'Collecting SP500 stocks..'
@@ -19,14 +20,17 @@ for resource in package.resources:
 
 stocks = random.sample(sp500, 1)
 print('Retrieving data for: {}'.format(', '.join(stocks)))
-timestep = 144
 data = web.DataReader(stocks, data_source='morningstar')
+print data.head
 
 # PARAMS
 # TODO: parametrize script
 debug = True
+timestep = 144
 future_window = 30
+ssize = int(sqrt(timestep))
 chns = 3
+print('timestep: {0} - future window: {1} - sample size: {2}x{2}x{3}'.format(timestep, future_window, ssize, chns))
 
 # GATHER TRAIN SAMPLES
 print('Splitting into time samples..')
@@ -39,7 +43,7 @@ if debug:
     gs = gridspec.GridSpec(3, 2)
     chart_ax = plt.subplot(gs[:, 0])
     visual_ax = []
-    visual_ax_titles = ['Open', 'High', 'Close']
+    visual_ax_titles = ['Close', 'High', 'Low']
     for i in range(chns):
         visual_ax.append(plt.subplot(gs[i, -1]))
 
@@ -60,7 +64,7 @@ for stock in stocks:
 
         current = scaler.fit_transform(current)
         future = scaler.transform(future)
-        X.append(current.reshape(12, 12, chns))
+        X.append(current.reshape(ssize, ssize, chns))
         y.append(trend)
 
         if debug:
@@ -92,7 +96,7 @@ for stock in stocks:
                 ax.imshow(X[-1][:, :, i], cmap='gray')
 
             plt.show()
-            plt.pause(.001)
+            plt.pause(.00001)
 
 print('{} time windows collected'.format(len(X)))
 
