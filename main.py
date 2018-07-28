@@ -81,7 +81,7 @@ for stock in stocks:
             chart_ax.plot(xi, future[:, -1], linestyle='--')
             chart_ax.plot(xi, [np.average(future) for i in range(len(xi))], color=color, label='future avg price')
 
-            # PRESENT vs FUTURE
+            # PRESENT|FUTURE LINE
             chart_ax.axvline(x=timestep - 1, color='gray', linestyle=':')
 
             chart_ax.set_title('Chart')
@@ -101,6 +101,7 @@ for stock in stocks:
 
 print('{} time windows collected'.format(len(X)))
 
+# BALANCE DATA
 X = np.array(X)
 y = np.array(y)
 
@@ -108,13 +109,14 @@ false_windows = len(y) - np.count_nonzero(np.array(y))
 true_idx, = np.where(y)
 np.random.shuffle(true_idx)
 
-print('{} downtrend and {} uptrend windows'.format(false_windows, len(true_idx)))
+print('{} downtrend and {} uptrend time windows'.format(false_windows, len(true_idx)))
 
 X = np.delete(X, true_idx[false_windows:], axis=0)
 y = np.delete(y, true_idx[false_windows:])
 
-print('dataset balanced to {} downtrend and {} uptrend windows'.format(len(np.where(y == 0)[0]), len(np.where(y)[0])))
+print('balanced to {} downtrend and {} uptrend time windows'.format(len(np.where(y == 0)[0]), len(np.where(y)[0])))
 
+# TRAIN MODEL
 model = Sequential()
 model.add(Conv2D(20, (3, 3), padding="same", input_shape=(12, 12, 3)))
 model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
