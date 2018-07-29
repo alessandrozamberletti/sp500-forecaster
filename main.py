@@ -12,18 +12,18 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from math import sqrt
 
-# TODO: check how to speed it up, avoid locking for too long
 print 'Collecting SP500 stocks..'
 package = Package('https://datahub.io/core/s-and-p-500-companies/datapackage.json')
 for resource in package.resources:
     if resource.descriptor['datahub']['type'] == 'derived/csv':
         sp500 = [s[0].encode('utf-8') for s in resource.read()]
 
-stocks = random.sample(sp500, 1)
+stocks = random.sample(sp500, 150)
 print('Retrieving data for: {}'.format(', '.join(stocks)))
-data = web.DataReader(stocks, data_source='morningstar')
+data = web.DataReader(stocks, data_source='morningstar', retry_count=0)
 
-# DROP WEEKENDS
+# DROP NaN and WEEKENDS
+data = data.dropna()
 data = data[data['Volume'] != 0]
 
 # TODO: parametrize script
@@ -51,7 +51,11 @@ if train_debug:
 
 scaler = MinMaxScaler(feature_range=(0, 1))
 for stock in stocks:
-    ohlc = data.xs(stock).values
+    try:
+        ohlc = data.xs(stock).values
+    except KeyError:
+        continue
+
     for t in range(0, ohlc.shape[0] - timestep - future_window):
         current = ohlc[t:t + timestep, 1:4]
         future = ohlc[t + timestep - 1:t + timestep - 1 + future_window, 1:4]
