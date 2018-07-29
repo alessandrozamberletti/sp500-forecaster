@@ -9,6 +9,7 @@ import random
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
 from math import sqrt
 
 # TODO: check how to speed it up, avoid locking for too long
@@ -18,7 +19,7 @@ for resource in package.resources:
     if resource.descriptor['datahub']['type'] == 'derived/csv':
         sp500 = [s[0].encode('utf-8') for s in resource.read()]
 
-stocks = random.sample(sp500, 10)
+stocks = random.sample(sp500, 1)
 print('Retrieving data for: {}'.format(', '.join(stocks)))
 data = web.DataReader(stocks, data_source='morningstar')
 
@@ -102,19 +103,20 @@ for stock in stocks:
 print('{} time windows collected'.format(len(X)))
 
 # BALANCE DATA
-X = np.array(X)
-y = np.array(y)
+downtrend_win_count = len(y) - np.count_nonzero(np.array(y))
+uptrend_win_idx, = np.where(y)
 
-false_windows = len(y) - np.count_nonzero(np.array(y))
-true_idx, = np.where(y)
-np.random.shuffle(true_idx)
+print('{} downtrend and {} uptrend time windows before balancing'.format(downtrend_win_count, len(uptrend_win_idx)))
 
-print('{} downtrend and {} uptrend time windows'.format(false_windows, len(true_idx)))
+np.random.shuffle(uptrend_win_idx)
+X = np.delete(X, uptrend_win_idx[downtrend_win_count:], axis=0)
+y = np.delete(y, uptrend_win_idx[downtrend_win_count:])
 
-X = np.delete(X, true_idx[false_windows:], axis=0)
-y = np.delete(y, true_idx[false_windows:])
+print('{} downtrend and {} uptrend time windows after balancing'.format(len(np.where(y == 0)[0]), len(np.where(y)[0])))
 
-print('balanced to {} downtrend and {} uptrend time windows'.format(len(np.where(y == 0)[0]), len(np.where(y)[0])))
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+print('{} train samples and {} test samples'.format(len(X_train), len(X_test)))
 
 # TRAIN MODEL
 model = Sequential()
@@ -126,6 +128,6 @@ model.add(Flatten())
 model.add(Dense(128))
 model.add(Dense(units=1, activation='sigmoid'))
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-model.fit(X, y, shuffle=True, epochs=100, validation_split=0.33)
+model.fit(X_train, y_train, shuffle=True, epochs=10, validation_split=0.2)
 
 # TODO: plot test data windows + classification vs expectation for random stocks
