@@ -74,12 +74,12 @@ for stock in stocks:
             chart_ax.cla()
 
             chart_ax.plot(current[:, -1])
-            chart_ax.plot([np.average(current) for i in range(timestep)], color='black', label='current avg price')
+            chart_ax.plot([np.average(current) for _ in range(timestep)], color='black', label='current avg price')
 
-            xi = [i for i in range(timestep - 1, timestep - 1 + future_window)]
+            xi = range(timestep - 1, timestep - 1 + future_window)
             color = 'green' if trend else 'red'
             chart_ax.plot(xi, future[:, -1], linestyle='--')
-            chart_ax.plot(xi, [np.average(future) for i in range(len(xi))], color=color, label='future avg price')
+            chart_ax.plot(xi, [np.average(future) for _ in range(len(xi))], color=color, label='future avg price')
 
             # PRESENT|FUTURE LINE
             chart_ax.axvline(x=timestep - 1, color='gray', linestyle=':')
