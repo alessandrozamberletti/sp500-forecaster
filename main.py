@@ -18,8 +18,8 @@ for resource in package.resources:
     if resource.descriptor['datahub']['type'] == 'derived/csv':
         sp500 = [s[0].encode('utf-8') for s in resource.read()]
 
-stocks = random.sample(sp500, 150)
-print('Retrieving data for: {}'.format(', '.join(stocks)))
+stocks = random.sample(sp500, 10)
+print('Collecting data for: {}'.format(', '.join(stocks)))
 data = web.DataReader(stocks, data_source='morningstar', retry_count=0)
 
 # DROP NaN and WEEKENDS
@@ -35,7 +35,7 @@ chns = 3
 print('timestep: {0} - future window: {1} - sample size: {2}x{2}x{3}'.format(timestep, future_window, ssize, chns))
 
 # GATHER TRAIN SAMPLES
-print('Splitting into time samples..')
+print('Splitting data into time windows..')
 X = []
 y = []
 
@@ -135,5 +135,11 @@ model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy']
 model.fit(X_train, y_train, shuffle=True, epochs=10, validation_split=0.2)
 
 # TODO: plot test data windows + classification vs expectation for random stocks
-score = model.evaluate(X_test, y_test, batch_size=128)
-print score
+# score = model.evaluate(X_test, y_test)
+# print score
+
+preds = model.predict_classes(X_test)
+for i in range(len(preds)):
+    pred = preds[i]
+    out = 'OK' if y_test[i] == pred else 'KO'
+    print('expected: {} vs. actual: {} -> {}'.format(y_test[i], bool(pred), out))
