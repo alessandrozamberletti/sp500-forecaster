@@ -32,6 +32,8 @@ data = web.DataReader(stocks, data_source='morningstar', retry_count=0)
 data = data.dropna()
 data = data[data['Volume'] != 0]
 
+assert data.shape[0] > 0, 'no stock data available'
+
 # TODO: parametrize script
 timestep = 144
 future_window = 30
@@ -43,10 +45,8 @@ data_manager = DataManager(timestep, future_window, chns)
 
 # GATHER TRAIN SAMPLES
 print('Splitting data into time windows..')
-X = []
-y = []
-X_test = []
-y_test = []
+
+X_train, X_test, y_train, y_test = ([] for i in range(4))
 
 for stock in stocks:
     try:
@@ -59,22 +59,29 @@ for stock in stocks:
         X_test.append(xs)
         y_test.append(ys)
     else:
-        X.append(xs)
-        y.append(ys)
+        X_train.append(xs)
+        y_train.append(ys)
 
-print('{} time windows collected'.format(len(X)))
+assert (len(X_train) == len(y_train)) and (len(X_test) == len(y_test)), 'non matching samples and targets lengths'
+assert (len(X_train) > 0) and (len(X_test) > 0), 'insufficient number of samples'
+
+print('{} train time windows collected'.format(len(X_train)))
+print('{} test time windows collected'.format(len(X_test)))
 
 # BALANCE DATA
-downtrend_win_count = len(y) - np.count_nonzero(np.array(y))
-uptrend_win_idx, = np.where(y)
+downtrend_win_count = len(y_train) - np.count_nonzero(np.array(y_train))
+uptrend_win_idx, = np.where(y_train)
 
 print('{} downtrend and {} uptrend time windows before balancing'.format(downtrend_win_count, len(uptrend_win_idx)))
 
 np.random.shuffle(uptrend_win_idx)
-X = np.delete(X, uptrend_win_idx[downtrend_win_count:], axis=0)
-y = np.delete(y, uptrend_win_idx[downtrend_win_count:])
+X_train = np.delete(X_train, uptrend_win_idx[downtrend_win_count:], axis=0)
+y_train = np.delete(y_train, uptrend_win_idx[downtrend_win_count:])
 
-print('{} downtrend and {} uptrend time windows after balancing'.format(len(np.where(y == 0)[0]), len(np.where(y)[0])))
+assert len(X_train) == len(y_train), 'non matching samples and targets lengths'
+assert len(X_train) > 0, 'insufficient number of samples'
+
+print('{} downtrend and {} uptrend time windows after balancing'.format(len(np.where(y_train == 0)[0]), len(np.where(y_train)[0])))
 
 # TRAIN MODEL
 model = Sequential()
@@ -86,7 +93,7 @@ model.add(Flatten())
 model.add(Dense(128))
 model.add(Dense(units=1, activation='sigmoid'))
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-model.fit(X, y, shuffle=True, epochs=10, validation_split=0.2)
+model.fit(X_train, y_train, shuffle=True, epochs=10, validation_split=0.2)
 
 # EVAL MODEL
 preds = model.predict_classes(X_test)

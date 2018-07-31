@@ -19,7 +19,7 @@ class DataManager:
     def __plot_setup(self):
         plt.ion()
         self.f = plt.figure()
-        gs = gridspec.GridSpec(3, 2)
+        gs = gridspec.GridSpec(self.chns, 2)
         self.chart_ax = plt.subplot(gs[:, 0])
         self.visual_ax = []
         for i in range(self.chns):
@@ -57,7 +57,7 @@ class DataManager:
                                    color='black',
                                    label='current avg price')
 
-                xi = range(self.timestep - 1, self.timestep - 1 + self.future_window)
+                xi = range(self.timestep - 1, self.timestep - 1 + self.futurestep)
                 color = 'green' if trend else 'red'
                 self.chart_ax.plot(xi, future[:, -1],
                                    linestyle='--')
