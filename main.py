@@ -18,7 +18,15 @@ for resource in package.resources:
     if resource.descriptor['datahub']['type'] == 'derived/csv':
         sp500 = [s[0].encode('utf-8') for s in resource.read()]
 
-stocks = random.sample(sp500, 10)
+stocks_num = 10
+stocks = random.sample(sp500, stocks_num)
+
+# TODO: evaluate on different stocks to avoid fake results caused by similar time windows between train and test
+# SPLIT
+split_pt = int(len(stocks)*.8)
+train_stocks = stocks[:split_pt]
+test_stocks = stocks[split_pt:]
+
 print('Collecting data for: {}'.format(', '.join(stocks)))
 data = web.DataReader(stocks, data_source='morningstar', retry_count=0)
 
@@ -134,10 +142,7 @@ model.add(Dense(units=1, activation='sigmoid'))
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 model.fit(X_train, y_train, shuffle=True, epochs=10, validation_split=0.2)
 
-# TODO: plot test data windows + classification vs expectation for random stocks
-# score = model.evaluate(X_test, y_test)
-# print score
-
+# EVAL MODEL
 preds = model.predict_classes(X_test)
 for i in range(len(preds)):
     pred = preds[i]
