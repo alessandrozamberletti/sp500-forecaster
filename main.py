@@ -18,7 +18,7 @@ for resource in package.resources:
     if resource.descriptor['datahub']['type'] == 'derived/csv':
         sp500 = [s[0].encode('utf-8') for s in resource.read()]
 
-stocks_num = 10
+stocks_num = 1
 stocks = random.sample(sp500, stocks_num)
 
 # TODO: evaluate on different stocks to avoid fake results caused by similar time windows between train and test
@@ -46,6 +46,8 @@ print('timestep: {0} - future window: {1} - sample size: {2}x{2}x{3}'.format(tim
 print('Splitting data into time windows..')
 X = []
 y = []
+X_test = []
+y_test = []
 
 if train_debug:
     plt.ion()
@@ -78,8 +80,12 @@ for stock in stocks:
 
         current = scaler.fit_transform(current)
         future = scaler.transform(future)
-        X.append(current.reshape(ssize, ssize, chns))
-        y.append(trend)
+        if stock in test_stocks:
+            X_test.append(current.reshape(ssize, ssize, chns))
+            y_test.append(trend)
+        else:
+            X.append(current.reshape(ssize, ssize, chns))
+            y.append(trend)
 
         if train_debug:
             f.suptitle('Chart&Visual Train Samples - SYMBOL:{0}'.format(stock))
