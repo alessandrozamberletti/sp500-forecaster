@@ -6,13 +6,13 @@ from math import sqrt
 
 
 class DataManager:
-    def __init__(self, columns, timestep, futurestep, debug=False):
+    def __init__(self, timestep, futurestep, debug=False):
         self.scaler = MinMaxScaler(feature_range=(0, 1))
-        self.columns = columns
-        self.chns = len(columns)
+        self.chns = 3
         self.timestep = timestep
         self.futurestep = futurestep
         self.debug = debug
+        self.visual_ax_titles = ['Close', 'High', 'Low']
         if self.debug:
             self.__plot_setup()
 
@@ -85,6 +85,7 @@ class DataManager:
 
                 plt.show()
                 plt.pause(.0001)
+
         return x, y
 
     def __normalize(self, price, time_window):

@@ -6,11 +6,9 @@ pd.core.common.is_list_like = pd.api.types.is_list_like
 import pandas_datareader as web
 from datapackage import Package
 import random
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from math import sqrt
+from data_manager import DataManager
 
 print 'Collecting SP500 stocks..'
 package = Package('https://datahub.io/core/s-and-p-500-companies/datapackage.json')
@@ -35,12 +33,13 @@ data = data.dropna()
 data = data[data['Volume'] != 0]
 
 # TODO: parametrize script
-train_debug = False
 timestep = 144
 future_window = 30
 ssize = int(sqrt(timestep))
 chns = 3
 print('timestep: {0} - future window: {1} - sample size: {2}x{2}x{3}'.format(timestep, future_window, ssize, chns))
+
+data_manager = DataManager(timestep, future_window)
 
 # GATHER TRAIN SAMPLES
 print('Splitting data into time windows..')
@@ -49,74 +48,19 @@ y = []
 X_test = []
 y_test = []
 
-if train_debug:
-    plt.ion()
-    f = plt.figure()
-    gs = gridspec.GridSpec(3, 2)
-    chart_ax = plt.subplot(gs[:, 0])
-    visual_ax = []
-    visual_ax_titles = ['Close', 'High', 'Low']
-    for i in range(chns):
-        visual_ax.append(plt.subplot(gs[i, -1]))
-
-scaler = MinMaxScaler(feature_range=(0, 1))
 for stock in stocks:
     try:
         ohlc = data.xs(stock).values
     except KeyError:
         continue
 
-    for t in range(0, ohlc.shape[0] - timestep - future_window):
-        current = ohlc[t:t + timestep, 1:4]
-        future = ohlc[t + timestep - 1:t + timestep - 1 + future_window, 1:4]
-
-        future_avg_price = np.average(future)
-        current_avg_price = np.average(current[:, -1])
-        trend = future_avg_price > current_avg_price
-
-        p0 = current[0, :]
-        current = np.array([[(i[0]/p0[0])-1, (i[1]/p0[1])-1, (i[2]/p0[2])-1] for i in current])
-        future = np.array([[(i[0]/p0[0])-1, (i[1]/p0[1])-1, (i[2]/p0[2])-1] for i in future])
-
-        current = scaler.fit_transform(current)
-        future = scaler.transform(future)
-        if stock in test_stocks:
-            X_test.append(current.reshape(ssize, ssize, chns))
-            y_test.append(trend)
-        else:
-            X.append(current.reshape(ssize, ssize, chns))
-            y.append(trend)
-
-        if train_debug:
-            f.suptitle('Chart&Visual Train Samples - SYMBOL:{0}'.format(stock))
-
-            chart_ax.cla()
-
-            chart_ax.plot(current[:, -1])
-            chart_ax.plot([np.average(current) for _ in range(timestep)], color='black', label='current avg price')
-
-            xi = range(timestep - 1, timestep - 1 + future_window)
-            color = 'green' if trend else 'red'
-            chart_ax.plot(xi, future[:, -1], linestyle='--')
-            chart_ax.plot(xi, [np.average(future) for _ in range(len(xi))], color=color, label='future avg price')
-
-            # PRESENT|FUTURE LINE
-            chart_ax.axvline(x=timestep - 1, color='gray', linestyle=':')
-
-            chart_ax.set_title('Chart')
-            chart_ax.set_xlabel('days')
-            chart_ax.set_ylabel('normalized closing price')
-            chart_ax.legend(loc='upper left')
-
-            for i in range(len(visual_ax)):
-                ax = visual_ax[i]
-                ax.cla()
-                ax.axis('off')
-                ax.set_title(visual_ax_titles[i])
-                ax.imshow(X[-1][:, :, i], cmap='gray')
-
-            plt.show()
-            plt.pause(.0001)
+    xs, ys = data_manager.build_samples(stock, ohlc)
+    if stock in test_stocks:
+        X_test.append(xs)
+        y_test.append(ys)
+    else:
+        X.append(xs)
+        y.append(ys)
 
 print('{} time windows collected'.format(len(X)))
 
