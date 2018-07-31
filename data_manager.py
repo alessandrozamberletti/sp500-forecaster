@@ -6,9 +6,9 @@ from math import sqrt
 
 
 class DataManager:
-    def __init__(self, timestep, futurestep, debug=False):
+    def __init__(self, timestep, futurestep, chns, debug=False):
         self.scaler = MinMaxScaler(feature_range=(0, 1))
-        self.chns = 3
+        self.chns = chns
         self.timestep = timestep
         self.futurestep = futurestep
         self.debug = debug

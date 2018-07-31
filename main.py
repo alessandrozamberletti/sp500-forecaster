@@ -6,7 +6,6 @@ pd.core.common.is_list_like = pd.api.types.is_list_like
 import pandas_datareader as web
 from datapackage import Package
 import random
-from sklearn.model_selection import train_test_split
 from math import sqrt
 from data_manager import DataManager
 
@@ -25,6 +24,7 @@ split_pt = int(len(stocks)*.8)
 train_stocks = stocks[:split_pt]
 test_stocks = stocks[split_pt:]
 
+# TODO: morningstar route returns 404, find sth else
 print('Collecting data for: {}'.format(', '.join(stocks)))
 data = web.DataReader(stocks, data_source='morningstar', retry_count=0)
 
@@ -39,7 +39,7 @@ ssize = int(sqrt(timestep))
 chns = 3
 print('timestep: {0} - future window: {1} - sample size: {2}x{2}x{3}'.format(timestep, future_window, ssize, chns))
 
-data_manager = DataManager(timestep, future_window)
+data_manager = DataManager(timestep, future_window, chns)
 
 # GATHER TRAIN SAMPLES
 print('Splitting data into time windows..')
@@ -76,13 +76,9 @@ y = np.delete(y, uptrend_win_idx[downtrend_win_count:])
 
 print('{} downtrend and {} uptrend time windows after balancing'.format(len(np.where(y == 0)[0]), len(np.where(y)[0])))
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
-
-print('{} train samples and {} test samples'.format(len(X_train), len(X_test)))
-
 # TRAIN MODEL
 model = Sequential()
-model.add(Conv2D(20, (3, 3), padding="same", input_shape=(12, 12, 3)))
+model.add(Conv2D(20, (3, 3), padding="same", input_shape=(ssize, ssize, chns)))
 model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
 model.add(Conv2D(20, (3, 3), padding="same"))
 model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
@@ -90,7 +86,7 @@ model.add(Flatten())
 model.add(Dense(128))
 model.add(Dense(units=1, activation='sigmoid'))
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-model.fit(X_train, y_train, shuffle=True, epochs=10, validation_split=0.2)
+model.fit(X, y, shuffle=True, epochs=10, validation_split=0.2)
 
 # EVAL MODEL
 preds = model.predict_classes(X_test)
@@ -98,3 +94,5 @@ for i in range(len(preds)):
     pred = preds[i]
     out = 'OK' if y_test[i] == pred else 'KO'
     print('expected: {} vs. actual: {} -> {}'.format(y_test[i], bool(pred), out))
+
+print('Test accuracy: {}'.format(model.evaluate(X_test, y_test)[1]))
