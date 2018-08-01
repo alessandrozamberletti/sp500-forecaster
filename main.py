@@ -1,14 +1,9 @@
 import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense, Flatten, Conv2D, MaxPooling2D
-import pandas as pd
-pd.core.common.is_list_like = pd.api.types.is_list_like
-import pandas_datareader as web
 from datapackage import Package
-import random
 from math import sqrt
 from data_manager import DataManager
-from datetime import datetime, timedelta
 
 print 'Collecting SP500 stocks..'
 package = Package('https://datahub.io/core/s-and-p-500-companies/datapackage.json')
@@ -16,57 +11,28 @@ for resource in package.resources:
     if resource.descriptor['datahub']['type'] == 'derived/csv':
         sp500 = [s[0].encode('utf-8') for s in resource.read()]
 
-stocks_num = 10
-stocks = random.sample(sp500, stocks_num)
+# stocks = random.sample(sp500, 100)
+stocks = sp500
 
-# TODO: evaluate on different stocks to avoid fake results caused by similar time windows between train and test
-# SPLIT
 split_pt = int(len(stocks)*.8)
 train_stocks = stocks[:split_pt]
 test_stocks = stocks[split_pt:]
 
-print('Collecting data for: {}'.format(', '.join(stocks)))
-start = datetime.now() - timedelta(days=2000)
-data = web.DataReader(stocks, data_source='iex', start=start, retry_count=0)
+print('{} symbols ({} train, {} test)'.format(len(stocks), len(train_stocks), len(test_stocks)))
 
-features = ['open', 'high', 'low']
-chns = len(features)
-print data.xs(stocks[0], level='Symbols', axis=1)[features].values
-exit(0)
-
-# DROP NaN and WEEKENDS
-data = data.dropna()
-data = data[data['volume'] != 0]
-
-assert data.shape[0] > 0, 'no stock data available'
-
-# TODO: parametrize script
 timestep = 144
 future_window = 30
 ssize = int(sqrt(timestep))
-chns = 3
+features = ['open', 'high', 'low']
+chns = len(features)
+
 print('timestep: {0} - future window: {1} - sample size: {2}x{2}x{3}'.format(timestep, future_window, ssize, chns))
 
-data_manager = DataManager(timestep, future_window, chns)
-
-# GATHER TRAIN SAMPLES
+# COLLECT TIME WINDOWS
 print('Splitting data into time windows..')
-
-X_train, X_test, y_train, y_test = ([] for i in range(4))
-
-for stock in stocks:
-    try:
-        ohlc = data.xs(stock).values
-    except KeyError:
-        continue
-
-    xs, ys = data_manager.build_samples(stock, ohlc)
-    if stock in test_stocks:
-        X_test.append(xs)
-        y_test.append(ys)
-    else:
-        X_train.append(xs)
-        y_train.append(ys)
+data_manager = DataManager(timestep, future_window, features, debug=False)
+X_train, y_train = data_manager.build_windows(train_stocks)
+X_test, y_test = data_manager.build_windows(test_stocks)
 
 assert (len(X_train) == len(y_train)) and (len(X_test) == len(y_test)), 'non matching samples and targets lengths'
 assert (len(X_train) > 0) and (len(X_test) > 0), 'insufficient number of samples'
@@ -89,6 +55,8 @@ assert len(X_train) > 0, 'insufficient number of samples'
 
 print('{} downtrend and {} uptrend time windows after balancing'.format(len(np.where(y_train == 0)[0]), len(np.where(y_train)[0])))
 
+exit(0)
+
 # TRAIN MODEL
 model = Sequential()
 model.add(Conv2D(20, (3, 3), padding="same", input_shape=(ssize, ssize, chns)))
@@ -103,6 +71,7 @@ model.fit(X_train, y_train, shuffle=True, epochs=10, validation_split=0.2)
 
 # EVAL MODEL
 preds = model.predict_classes(X_test)
+# TODO: use zip
 for i in range(len(preds)):
     pred = preds[i]
     out = 'OK' if y_test[i] == pred else 'KO'
