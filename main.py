@@ -8,6 +8,7 @@ from datapackage import Package
 import random
 from math import sqrt
 from data_manager import DataManager
+from datetime import datetime, timedelta
 
 print 'Collecting SP500 stocks..'
 package = Package('https://datahub.io/core/s-and-p-500-companies/datapackage.json')
@@ -15,7 +16,7 @@ for resource in package.resources:
     if resource.descriptor['datahub']['type'] == 'derived/csv':
         sp500 = [s[0].encode('utf-8') for s in resource.read()]
 
-stocks_num = 1
+stocks_num = 10
 stocks = random.sample(sp500, stocks_num)
 
 # TODO: evaluate on different stocks to avoid fake results caused by similar time windows between train and test
@@ -24,13 +25,18 @@ split_pt = int(len(stocks)*.8)
 train_stocks = stocks[:split_pt]
 test_stocks = stocks[split_pt:]
 
-# TODO: morningstar route returns 404, find sth else
 print('Collecting data for: {}'.format(', '.join(stocks)))
-data = web.DataReader(stocks, data_source='morningstar', retry_count=0)
+start = datetime.now() - timedelta(days=2000)
+data = web.DataReader(stocks, data_source='iex', start=start, retry_count=0)
+
+features = ['open', 'high', 'low']
+chns = len(features)
+print data.xs(stocks[0], level='Symbols', axis=1)[features].values
+exit(0)
 
 # DROP NaN and WEEKENDS
 data = data.dropna()
-data = data[data['Volume'] != 0]
+data = data[data['volume'] != 0]
 
 assert data.shape[0] > 0, 'no stock data available'
 
