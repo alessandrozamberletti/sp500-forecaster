@@ -6,41 +6,43 @@ from math import sqrt
 from data_manager import DataManager
 import random
 
-print 'Collecting SP500 stocks..'
+# GATHER SP500 SYMBOLS
+print 'Collecting SP500 symbols..'
+
 package = Package('https://datahub.io/core/s-and-p-500-companies/datapackage.json')
 for resource in package.resources:
     if resource.descriptor['datahub']['type'] == 'derived/csv':
         sp500 = [s[0].encode('utf-8') for s in resource.read()]
 
 stocks = random.sample(sp500, 10)
-
 split_pt = int(len(stocks)*.8)
 train_stocks = stocks[:split_pt]
 test_stocks = stocks[split_pt:]
 
 print('{} symbols ({} train, {} test)'.format(len(stocks), len(train_stocks), len(test_stocks)))
 
+# COLLECT TIME WINDOWS
 timestep = 144
 future_window = 30
 ssize = int(sqrt(timestep))
 features = ['open', 'high', 'low']
 chns = len(features)
 
-print('timestep: {0} - future window: {1} - sample size: {2}x{2}x{3}'.format(timestep, future_window, ssize, chns))
+print('Parameters: timestep: {0} - futurestep: {1} - sample size: {2}x{2}x{3}'.format(timestep, future_window, ssize, chns))
 
-# COLLECT TIME WINDOWS
 print('Splitting data into time windows..')
+
 data_manager = DataManager(timestep, future_window, features, debug=False)
 X_train, y_train = data_manager.build_windows(train_stocks)
 X_test, y_test = data_manager.build_windows(test_stocks)
 
-assert (len(X_train) == len(y_train)) and (len(X_test) == len(y_test)), 'non matching samples and targets lengths'
 assert (len(X_train) > 0) and (len(X_test) > 0), 'insufficient number of samples'
 
-print('{} train time windows collected'.format(len(X_train)))
-print('{} test time windows collected'.format(len(X_test)))
+print('{} time windows ({} train, {} test)'.format(X_train.shape[0] + X_test.shape[0], len(X_train), len(X_test)))
 
 # BALANCE DATA
+print('Balancing train data..')
+
 downtrend_win_count = len(y_train) - np.count_nonzero(np.array(y_train))
 uptrend_win_idx, = np.where(y_train)
 
@@ -56,6 +58,8 @@ assert len(X_train) > 0, 'insufficient number of samples'
 print('{} downtrend and {} uptrend time windows after balancing'.format(len(np.where(y_train == 0)[0]), len(np.where(y_train)[0])))
 
 # TRAIN MODEL
+print('Training model..')
+
 model = Sequential()
 model.add(Conv2D(20, (3, 3), padding="same", input_shape=(ssize, ssize, chns)))
 model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
@@ -68,6 +72,8 @@ model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy']
 model.fit(X_train, y_train, shuffle=True, epochs=10, validation_split=0.2)
 
 # EVAL MODEL
+print('Evaluating model..')
+
 preds = model.predict_classes(X_test)
 # TODO: use zip
 for i in range(len(preds)):

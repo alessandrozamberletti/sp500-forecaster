@@ -42,7 +42,7 @@ class DataManager:
             data = data[~np.isnan(data).any(axis=1)]
 
             window_x, window_y = self.__build_samples(symbol, data)
-            assert len(window_x) == len(window_y), 'non matching data for {}'.format(symbol)
+            assert len(window_x) == len(window_y), 'non matching samples and targets lengths for {}'.format(symbol)
 
             x += window_x
             y += window_y
