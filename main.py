@@ -4,6 +4,7 @@ from keras.layers import Dense, Flatten, Conv2D, MaxPooling2D
 from datapackage import Package
 from math import sqrt
 from data_manager import DataManager
+import random
 
 print 'Collecting SP500 stocks..'
 package = Package('https://datahub.io/core/s-and-p-500-companies/datapackage.json')
@@ -11,8 +12,7 @@ for resource in package.resources:
     if resource.descriptor['datahub']['type'] == 'derived/csv':
         sp500 = [s[0].encode('utf-8') for s in resource.read()]
 
-# stocks = random.sample(sp500, 100)
-stocks = sp500
+stocks = random.sample(sp500, 10)
 
 split_pt = int(len(stocks)*.8)
 train_stocks = stocks[:split_pt]
@@ -54,8 +54,6 @@ assert len(X_train) == len(y_train), 'non matching samples and targets lengths'
 assert len(X_train) > 0, 'insufficient number of samples'
 
 print('{} downtrend and {} uptrend time windows after balancing'.format(len(np.where(y_train == 0)[0]), len(np.where(y_train)[0])))
-
-exit(0)
 
 # TRAIN MODEL
 model = Sequential()

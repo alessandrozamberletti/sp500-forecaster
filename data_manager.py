@@ -47,7 +47,7 @@ class DataManager:
             x += window_x
             y += window_y
 
-        return x, y
+        return np.array(x), np.array(y)
 
     def __build_samples(self, symbol, ohlc):
         x = []
