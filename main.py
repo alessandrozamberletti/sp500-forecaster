@@ -1,15 +1,20 @@
+# -*- coding: utf-8 -*-
 import numpy as np
 from math import sqrt
 from data_manager import DataManager
 import random
 import utils
 
+timestep = 144
+future_window = 30
+debug = True
+features = ['open', 'high', 'low']
 
 # RETRIEVE SYMBOLS
 print('0) Retrieving SP500 symbols..')
 
 sp500_symbols = utils.sp500_symbols()
-sp500_symbols = random.sample(sp500_symbols, 10)
+sp500_symbols = random.sample(sp500_symbols, 3)
 
 split_pt = int(len(sp500_symbols) * .8)
 train_symbols = sp500_symbols[:split_pt]
@@ -17,23 +22,18 @@ test_symbols = sp500_symbols[split_pt:]
 
 assert len(train_symbols) > 0 and len(test_symbols), 'no valid symbols found'
 
-print('Found: {} train symbols - {} test symbols'.format(len(train_symbols),
-                                                         len(test_symbols)))
+print('Found: {} train symbols - {} test symbols'.format(len(train_symbols), len(test_symbols)))
 
 # BUILD TIME WINDOWS
 print('1) Splitting into time windows..')
 
-timestep = 144
-future_window = 30
-features = ['open', 'high', 'low']
-data_manager = DataManager(timestep, future_window, features, debug=False)
+data_manager = DataManager(timestep, future_window, features, debug=debug)
 X_train, y_train = data_manager.build_windows(train_symbols)
 X_test, y_test = data_manager.build_windows(test_symbols)
 
 assert len(X_train) > 0 and len(X_test) > 0, 'insufficient number of samples'
 
-print('Built: {} train time windows - {} test time windows'.format(len(X_train),
-                                                                   len(X_test)))
+print('Built: {} train time windows - {} test time windows'.format(len(X_train), len(X_test)))
 
 # BALANCE DATASET
 print('2) Balancing data..')
@@ -41,14 +41,11 @@ print('2) Balancing data..')
 X_train, y_train = utils.balance(X_train, y_train)
 X_test, y_test = utils.balance(X_test, y_test)
 
-assert len(X_train) == len(y_train) and len(X_test) == len(y_test), 'non matching samples and targets lengths'
-assert len(X_train) > 0 and len(X_test), 'insufficient number of samples'
+assert len(X_train) > 0 and len(X_test) > 0, 'insufficient number of samples'
 
-print('Train: {} downtrend time windows - {} uptrend time windows'.format(len(np.where(y_train == 0)[0]),
-                                                                          len(np.where(y_train)[0])))
+print('Train: {} ↓time windows - {} ↑time windows'.format(len(np.where(y_train == 0)[0]), len(np.where(y_train)[0])))
 
-print('Test: {} downtrend time windows - {} uptrend time windows'.format(len(np.where(y_test == 0)[0]),
-                                                                         len(np.where(y_test)[0])))
+print('Test: {} ↓time windows - {} ↑time windows'.format(len(np.where(y_test == 0)[0]), len(np.where(y_test)[0])))
 
 # TRAIN MODEL
 print('3) Training model..')
