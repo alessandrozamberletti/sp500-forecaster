@@ -54,6 +54,7 @@ ssize = int(sqrt(timestep))
 input_size = (ssize, ssize, len(features))
 print('Timestep: {} - Futurestep: {} - Input size: {}'.format(timestep, future_window, input_size))
 
+# TODO: plot train/val loss
 model = utils.cnn(input_size)
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 model.fit(X_train, y_train, shuffle=True, epochs=10, validation_split=0.2)
@@ -68,4 +69,5 @@ print('Evaluating model..')
 #     out = 'OK' if y_test[i] == pred else 'KO'
 #     print('expected: {} vs. actual: {} -> {}'.format(y_test[i], bool(pred), out))
 
+# TODO: plot predictions vs gt
 print('Test accuracy: {}'.format(model.evaluate(X_test, y_test)[1]))
