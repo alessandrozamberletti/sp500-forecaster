@@ -38,7 +38,7 @@ class DataManager:
                                   retry_count=0)
             data = data[self.features].values
 
-            # drop NaN
+            # drop NaNs
             data = data[~np.isnan(data).any(axis=1)]
 
             window_x, window_y = self.__build_samples(symbol, data)

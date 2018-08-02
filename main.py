@@ -7,7 +7,7 @@ import utils
 
 timestep = 144
 future_window = 30
-debug = True
+debug = False
 features = ['open', 'high', 'low']
 
 # RETRIEVE SYMBOLS
@@ -44,7 +44,6 @@ X_test, y_test = utils.balance(X_test, y_test)
 assert len(X_train) > 0 and len(X_test) > 0, 'insufficient number of samples'
 
 print('Train: {} ↓time windows - {} ↑time windows'.format(len(np.where(y_train == 0)[0]), len(np.where(y_train)[0])))
-
 print('Test: {} ↓time windows - {} ↑time windows'.format(len(np.where(y_test == 0)[0]), len(np.where(y_test)[0])))
 
 # TRAIN MODEL
@@ -57,7 +56,8 @@ print('Timestep: {} - Futurestep: {} - Input size: {}'.format(timestep, future_w
 # TODO: plot train/val loss
 model = utils.cnn(input_size)
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-model.fit(X_train, y_train, shuffle=True, epochs=10, validation_split=0.2)
+hist = model.fit(X_train, y_train, shuffle=True, epochs=10, validation_split=0.2)
+utils.plot_loss(hist)
 
 # EVAL MODEL
 print('Evaluating model..')

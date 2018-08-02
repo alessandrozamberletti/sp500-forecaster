@@ -2,6 +2,7 @@ from datapackage import Package
 import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense, Flatten, Conv2D, MaxPooling2D
+import matplotlib.pyplot as plt
 
 
 def sp500_symbols():
@@ -36,3 +37,13 @@ def cnn(input_size):
     model.add(Dense(units=1, activation='sigmoid'))
 
     return model
+
+
+def plot_loss(data):
+    plt.plot(data.history['loss'], label='train')
+    plt.plot(data.history['val_loss'], label='validation')
+    plt.title('Model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend()
+    plt.show()
