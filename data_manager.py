@@ -28,14 +28,9 @@ class DataManager:
         x = []
         y = []
         start = datetime.now() - timedelta(days=2000)
-        for i in tqdm(range(len(symbols))):
-            symbol = symbols[i]
-
+        for symbol in tqdm(symbols, total=len(symbols)):
             # NOTE: extracting too many symbols at once causes error in DataReader parsing
-            data = web.DataReader(symbol,
-                                  data_source='iex',
-                                  start=start,
-                                  retry_count=0)
+            data = web.DataReader(symbol, data_source='iex', start=start, retry_count=0)
             data = data[self.features].values
 
             # drop NaNs
@@ -56,8 +51,8 @@ class DataManager:
             current = ohlc[t:t + self.timestep, :]
             future = ohlc[t + self.timestep - 1:t + self.timestep - 1 + self.futurestep, :]
 
-            future_avg_price = np.average(future)
             current_avg_price = np.average(current[:, -1])
+            future_avg_price = np.average(future[:, -1])
             trend = future_avg_price > current_avg_price
 
             p0 = current[0, :]
@@ -65,19 +60,19 @@ class DataManager:
             future = self.__normalize(p0, future)
 
             current = self.scaler.fit_transform(current)
-            future = self.scaler.transform(future)
 
             ssize = int(sqrt(self.timestep))
             x.append(current.reshape(ssize, ssize, self.chns))
             y.append(trend)
 
             if self.debug:
+                future = self.scaler.transform(future)
                 self.__plot(symbol, current, future, trend, x[-1])
 
         return x, y
 
     def __normalize(self, price, time_window):
-        return np.array([[(i[0] / price[j]) - 1 for j in range(self.chns)] for i in time_window])
+        return time_window/price - 1
 
     def __plot(self, symbol, current_w, future_w, trend, visual_sample):
         self.f.suptitle('Chart&Visual Train Samples - SYMBOL:{0}'.format(symbol))

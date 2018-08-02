@@ -7,7 +7,7 @@ import utils
 
 timestep = 144
 future_window = 30
-debug = False
+debug = True
 features = ['open', 'high', 'low']
 
 # RETRIEVE SYMBOLS
