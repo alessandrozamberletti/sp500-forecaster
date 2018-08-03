@@ -95,6 +95,8 @@ for symbol in test_symbols:
     from matplotlib.lines import Line2D
 
     plt.title('Predictions for SYMBOL:{}'.format(symbol))
+    plt.ylabel('price')
+    plt.xlabel('days')
 
     legend_els = [Line2D([0], [0], marker='o', color='green', label='positive outlook'),
                   Line2D([0], [0], marker='o', color='red', label='negative outlook'),

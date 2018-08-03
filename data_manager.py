@@ -1,13 +1,12 @@
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
 from math import sqrt
 from datetime import datetime, timedelta
 from tqdm import tqdm
 import pandas as pd
 pd.core.common.is_list_like = pd.api.types.is_list_like
 import pandas_datareader as web
+from plotter import Plotter
 
 
 class DataManager:
@@ -21,7 +20,7 @@ class DataManager:
 
         self.debug = debug
         if self.debug:
-            self.__plot_setup()
+            self.plotter = Plotter(features)
 
     def build_windows(self, symbols):
         symbols = list(set(symbols) & self.supported_symbols)
@@ -67,53 +66,10 @@ class DataManager:
 
             if self.debug:
                 future = self.scaler.transform(future)
-                self.__plot(symbol, current, future, trend, x[-1])
+                self.plotter.plot(symbol, current, future, trend, x[-1])
 
         return x, y
 
     @staticmethod
     def __normalize(price, time_window):
         return time_window/price - 1
-
-    def __plot(self, symbol, current, future, trend, visual_sample):
-        self.f.suptitle('Chart&Visual Train Samples - SYMBOL:{0}'.format(symbol))
-
-        self.chart_ax.cla()
-
-        # CURRENT
-        self.chart_ax.plot(current[:, -1])
-        self.chart_ax.plot([np.average(current)] * self.timestep, color='black', label='current avg price')
-
-        # FUTURE
-        xi = range(self.timestep - 1, self.timestep - 1 + self.futurestep)
-        color = 'green' if trend else 'red'
-        self.chart_ax.plot(xi, future[:, -1], linestyle='--')
-        self.chart_ax.plot(xi, [np.average(future)] * len(xi), color=color, label='future avg price')
-
-        # PRESENT|FUTURE SEP
-        self.chart_ax.axvline(x=self.timestep - 1, color='gray', linestyle=':')
-
-        self.chart_ax.set_title('Chart')
-        self.chart_ax.set_xlabel('days')
-        self.chart_ax.set_ylabel('normalized {} price'.format(self.features[-1]))
-        self.chart_ax.legend(loc='upper left')
-
-        # VISUAL SAMPLE CHNS
-        for i in range(len(self.visual_ax)):
-            ax = self.visual_ax[i]
-            ax.cla()
-            ax.axis('off')
-            ax.set_title(self.features[i])
-            ax.imshow(visual_sample[:, :, i], cmap='gray')
-
-        plt.show()
-        plt.pause(.00001)
-
-    def __plot_setup(self):
-        plt.ion()
-        self.f = plt.figure()
-        gs = gridspec.GridSpec(self.chns, 2)
-        self.chart_ax = plt.subplot(gs[:, 0])
-        self.visual_ax = []
-        for i in range(self.chns):
-            self.visual_ax.append(plt.subplot(gs[i, -1]))
