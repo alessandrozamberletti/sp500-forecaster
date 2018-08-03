@@ -32,7 +32,7 @@ class DataManager:
         start = datetime.now() - timedelta(days=2000)
         for symbol in tqdm(symbols, total=len(symbols)):
             # NOTE: extracting too many symbols at once causes error in DataReader parsing
-            data = web.DataReader(symbol, data_source='iex', start=start, retry_count=0)
+            data = web.DataReader(symbol, data_source='iex', start=start)
             data = data[self.features].values
             data = data[~np.isnan(data).any(axis=1)]
 
@@ -75,7 +75,7 @@ class DataManager:
     def __normalize(price, time_window):
         return time_window/price - 1
 
-    def __plot(self, symbol, current, future, trend, visual_sample):
+    def plot(self, symbol, current, future, trend, visual_sample):
         self.f.suptitle('Chart&Visual Train Samples - SYMBOL:{0}'.format(symbol))
 
         self.chart_ax.cla()

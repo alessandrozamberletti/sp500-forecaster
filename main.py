@@ -7,14 +7,14 @@ import utils
 
 timestep = 144
 future_window = 30
-debug = True
-features = ['open', 'high', 'low']
+debug = False
+features = ['open', 'high', 'close']
 
 # RETRIEVE SYMBOLS
 print('0) Retrieving SP500 symbols..')
 
 sp500_symbols = utils.sp500_symbols()
-sp500_symbols = random.sample(sp500_symbols, 10)
+sp500_symbols = random.sample(sp500_symbols, 3)
 
 split_idx = int(len(sp500_symbols) * .8)
 train_symbols = sp500_symbols[:split_idx]
@@ -39,7 +39,7 @@ print('BUILT: {} train time windows - {} test time windows'.format(len(X_train),
 print('2) Balancing data..')
 
 X_train, y_train = utils.balance(X_train, y_train)
-X_test, y_test = utils.balance(X_test, y_test)
+# X_test, y_test = utils.balance(X_test, y_test)
 
 assert len(X_train) > 0 and len(X_test) > 0, 'insufficient number of samples'
 
@@ -57,18 +57,51 @@ print('Timestep: {} - Futurestep: {} - Input size: {}'.format(timestep, future_w
 # TODO: plot train/val loss
 model = utils.cnn(input_size)
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-hist = model.fit(X_train, y_train, shuffle=True, epochs=10, validation_split=0.2)
-utils.plot_loss(hist)
+hist = model.fit(X_train, y_train, shuffle=True, epochs=1, validation_split=0.2)
+# utils.plot_loss(hist)
 
 # EVAL MODEL
 print('Evaluating model..')
+from datetime import datetime, timedelta
+start = datetime.now() - timedelta(days=2000)
+import pandas as pd
+pd.core.common.is_list_like = pd.api.types.is_list_like
+import pandas_datareader as web
+supported_symbols = set([i.encode("utf-8") for i in web.get_iex_symbols()['symbol'].values])
+test_symbols = list(set(test_symbols) & supported_symbols)
 
-# preds = model.predict_classes(X_test)
-# # TODO: use zip
-# for i in range(len(preds)):
-#     pred = preds[i]
-#     out = 'OK' if y_test[i] == pred else 'KO'
-#     print('expected: {} vs. actual: {} -> {}'.format(y_test[i], bool(pred), out))
+import matplotlib.pyplot as plt
+# plt.ion()
+preds = model.predict_classes(X_test)
+for symbol in test_symbols:
+    data = web.DataReader(symbol, data_source='iex', start=start)
+    data = data['low'].values
+    data = data[~np.isnan(data)]
+    data = data[:len(preds)]
+    # plt.plot(data)
 
-# TODO: plot predictions vs gt
-print('Test accuracy: {}'.format(model.evaluate(X_test, y_test)[1]))
+    cols = []
+    for idx, (pt, actual, expected) in enumerate(zip(data, preds, y_test)):
+        if actual != expected:
+            cols.append('black')
+            continue
+        if actual:
+            cols.append('green')
+        else:
+            cols.append('red')
+    plt.plot(data)
+    plt.scatter(timestep + np.array(range(len(data[timestep:]))), np.array(data[timestep:]), c=np.array(cols))
+    plt.xticks(np.arange(timestep, len(data) + 1, future_window))
+    plt.show()
+    # plt.pause(0.0001)
+
+
+
+    # plt.arrow(0, data[0], 0, 2, head_width=3, head_length=1, color='green')
+
+
+# for actual, expected in zip(preds, y_test):
+#     out = 'OK' if expected == actual else 'KO'
+#     print('expected: {} vs. actual: {} -> {}'.format(expected, bool(actual), out))
+
+# print('Test accuracy: {}'.format(model.evaluate(X_test, y_test)[1]))
