@@ -5,8 +5,8 @@ from data_manager import DataManager
 import random
 import utils
 
-timestep = 144
-future_window = 30
+timestep = 64
+futurestep = 30
 debug = False
 features = ['open', 'high', 'close']
 
@@ -27,7 +27,7 @@ print('FOUND: {} train symbols - {} test symbols'.format(len(train_symbols), len
 # BUILD TIME WINDOWS
 print('1) Splitting into time windows..')
 
-data_manager = DataManager(timestep, future_window, features, debug=debug)
+data_manager = DataManager(timestep, futurestep, features, debug=debug)
 X_train, y_train = data_manager.build_windows(train_symbols)
 X_test, y_test = data_manager.build_windows(test_symbols)
 
@@ -52,7 +52,7 @@ print('3) Training model..')
 ssize = int(sqrt(timestep))
 input_size = (ssize, ssize, len(features))
 
-print('Timestep: {} - Futurestep: {} - Input size: {}'.format(timestep, future_window, input_size))
+print('Timestep: {} - Futurestep: {} - Input size: {}'.format(timestep, futurestep, input_size))
 
 # TODO: plot train/val loss
 model = utils.cnn(input_size)
@@ -71,14 +71,10 @@ supported_symbols = set([i.encode("utf-8") for i in web.get_iex_symbols()['symbo
 test_symbols = list(set(test_symbols) & supported_symbols)
 
 import matplotlib.pyplot as plt
-# plt.ion()
 preds = model.predict_classes(X_test)
 for symbol in test_symbols:
     data = web.DataReader(symbol, data_source='iex', start=start)
     data = data['low'].values
-    data = data[~np.isnan(data)]
-    data = data[:len(preds)]
-    # plt.plot(data)
 
     cols = []
     for idx, (pt, actual, expected) in enumerate(zip(data, preds, y_test)):
@@ -91,17 +87,10 @@ for symbol in test_symbols:
             cols.append('red')
     plt.plot(data)
     plt.scatter(timestep + np.array(range(len(data[timestep:]))), np.array(data[timestep:]), c=np.array(cols))
-    plt.xticks(np.arange(timestep, len(data) + 1, future_window))
     plt.show()
-    # plt.pause(0.0001)
-
-
-
-    # plt.arrow(0, data[0], 0, 2, head_width=3, head_length=1, color='green')
-
 
 # for actual, expected in zip(preds, y_test):
 #     out = 'OK' if expected == actual else 'KO'
 #     print('expected: {} vs. actual: {} -> {}'.format(expected, bool(actual), out))
 
-# print('Test accuracy: {}'.format(model.evaluate(X_test, y_test)[1]))
+print('Test accuracy: {}'.format(model.evaluate(X_test, y_test)[1]))
