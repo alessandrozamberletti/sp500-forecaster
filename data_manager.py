@@ -26,6 +26,7 @@ class DataManager:
         symbols = list(set(symbols) & self.supported_symbols)
         assert len(symbols) > 0, 'none of the provided symbols are supported by iex'
 
+        symbols_data = {}
         x = []
         y = []
         start = datetime.now() - timedelta(days=2000)
@@ -38,10 +39,11 @@ class DataManager:
             window_x, window_y = self.__build_time_windows(symbol, data)
             assert len(window_x) == len(window_y), 'non matching samples and targets lengths for {}'.format(symbol)
 
+            symbols_data[symbol] = data
             x += window_x
             y += window_y
 
-        return np.array(x), np.array(y)
+        return symbols_data, np.array(x), np.array(y)
 
     def __build_time_windows(self, symbol, data):
         x = []

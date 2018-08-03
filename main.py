@@ -29,8 +29,8 @@ print('FOUND: {} train symbols - {} test symbols'.format(len(train_symbols), len
 print('1) Splitting into time windows..')
 
 data_manager = DataManager(timestep, futurestep, features, debug=debug)
-X_train, y_train = data_manager.build_windows(train_symbols)
-X_test, y_test = data_manager.build_windows(test_symbols)
+_, X_train, y_train = data_manager.build_windows(train_symbols)
+data_test, X_test, y_test = data_manager.build_windows(test_symbols)
 
 assert len(X_train) > 0 and len(X_test) > 0, 'insufficient number of samples'
 
@@ -66,4 +66,4 @@ print('Evaluating model..')
 print('Test accuracy: {}'.format(model.evaluate(X_test, y_test)[1]))
 
 preds = model.predict_classes(X_test)
-Plotter(features).plot_predictions(test_symbols, timestep, preds, y_test)
+Plotter(features).plot_predictions(data_test, test_symbols, timestep, preds, y_test)

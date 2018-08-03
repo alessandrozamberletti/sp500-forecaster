@@ -1,10 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np
-import pandas as pd
-from datetime import datetime, timedelta
-pd.core.common.is_list_like = pd.api.types.is_list_like
-import pandas_datareader as web
 
 
 class Plotter:
@@ -50,16 +46,13 @@ class Plotter:
         plt.show()
         plt.pause(.00001)
 
-    def plot_predictions(self, symbols, timestep, y_actual, y_expected):
+    def plot_predictions(self, data_test, symbols, timestep, y_actual, y_expected):
         plt.clf()
-
-        start = datetime.now() - timedelta(days=2000)
 
         for symbol in symbols:
             plt.cla()
 
-            data = web.DataReader(symbol, data_source='iex', start=start)
-            data = data['low'].values
+            data = data_test[symbol][:, -1]
 
             cols = []
             for idx, (pt, actual, expected) in enumerate(zip(data, y_actual, y_expected)):
