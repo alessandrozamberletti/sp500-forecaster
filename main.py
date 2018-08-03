@@ -5,16 +5,16 @@ from data_manager import DataManager
 import random
 import utils
 
-timestep = 64
+timestep = 144
 futurestep = 30
 debug = False
-features = ['open', 'high', 'close']
+features = ['high', 'low', 'close']
 
 # RETRIEVE SYMBOLS
 print('0) Retrieving SP500 symbols..')
 
 sp500_symbols = utils.sp500_symbols()
-sp500_symbols = random.sample(sp500_symbols, 3)
+sp500_symbols = random.sample(sp500_symbols, 10)
 
 split_idx = int(len(sp500_symbols) * .8)
 train_symbols = sp500_symbols[:split_idx]
@@ -57,11 +57,14 @@ print('Timestep: {} - Futurestep: {} - Input size: {}'.format(timestep, futurest
 # TODO: plot train/val loss
 model = utils.cnn(input_size)
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-hist = model.fit(X_train, y_train, shuffle=True, epochs=1, validation_split=0.2)
+hist = model.fit(X_train, y_train, shuffle=True, epochs=10, validation_split=0.2)
 # utils.plot_loss(hist)
 
 # EVAL MODEL
 print('Evaluating model..')
+
+print('Test accuracy: {}'.format(model.evaluate(X_test, y_test)[1]))
+
 from datetime import datetime, timedelta
 start = datetime.now() - timedelta(days=2000)
 import pandas as pd
@@ -72,25 +75,31 @@ test_symbols = list(set(test_symbols) & supported_symbols)
 
 import matplotlib.pyplot as plt
 preds = model.predict_classes(X_test)
+
+plt.ion()
 for symbol in test_symbols:
+    plt.cla()
+
     data = web.DataReader(symbol, data_source='iex', start=start)
     data = data['low'].values
 
     cols = []
     for idx, (pt, actual, expected) in enumerate(zip(data, preds, y_test)):
         if actual != expected:
-            cols.append('black')
+            cols.append('blue')
             continue
-        if actual:
-            cols.append('green')
-        else:
-            cols.append('red')
-    plt.plot(data)
-    plt.scatter(timestep + np.array(range(len(data[timestep:]))), np.array(data[timestep:]), c=np.array(cols))
+        cols.append('green') if actual else cols.append('red')
+
+    plt.plot(data, color='black')
+    plt.scatter(timestep + np.array(range(len(data[timestep:]))), np.array(data[timestep:]), c=np.array(cols), alpha=0.3)
+
+    from matplotlib.lines import Line2D
+
+    legend_els = [Line2D([0], [0], marker='o', color='green', label='positive future'),
+                  Line2D([0], [0], marker='o', color='red', label='negative future'),
+                  Line2D([0], [0], marker='o', color='blue', label='wrong prediction')]
+
+    plt.legend(handles=legend_els)
+
     plt.show()
-
-# for actual, expected in zip(preds, y_test):
-#     out = 'OK' if expected == actual else 'KO'
-#     print('expected: {} vs. actual: {} -> {}'.format(expected, bool(actual), out))
-
-print('Test accuracy: {}'.format(model.evaluate(X_test, y_test)[1]))
+    plt.pause(10)

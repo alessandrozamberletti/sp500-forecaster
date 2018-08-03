@@ -75,7 +75,7 @@ class DataManager:
     def __normalize(price, time_window):
         return time_window/price - 1
 
-    def plot(self, symbol, current, future, trend, visual_sample):
+    def __plot(self, symbol, current, future, trend, visual_sample):
         self.f.suptitle('Chart&Visual Train Samples - SYMBOL:{0}'.format(symbol))
 
         self.chart_ax.cla()
