@@ -54,11 +54,10 @@ input_size = (ssize, ssize, len(features))
 
 print('Timestep: {} - Futurestep: {} - Input size: {}'.format(timestep, futurestep, input_size))
 
-# TODO: plot train/val loss
 model = utils.cnn(input_size)
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 hist = model.fit(X_train, y_train, shuffle=True, epochs=10, validation_split=0.2)
-# utils.plot_loss(hist)
+utils.plot_loss(hist)
 
 # EVAL MODEL
 print('Evaluating model..')
@@ -95,8 +94,10 @@ for symbol in test_symbols:
 
     from matplotlib.lines import Line2D
 
-    legend_els = [Line2D([0], [0], marker='o', color='green', label='positive future'),
-                  Line2D([0], [0], marker='o', color='red', label='negative future'),
+    plt.title('Predictions for SYMBOL:{}'.format(symbol))
+
+    legend_els = [Line2D([0], [0], marker='o', color='green', label='positive outlook'),
+                  Line2D([0], [0], marker='o', color='red', label='negative outlook'),
                   Line2D([0], [0], marker='o', color='blue', label='wrong prediction')]
 
     plt.legend(handles=legend_els)
