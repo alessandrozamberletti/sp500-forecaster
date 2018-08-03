@@ -2,10 +2,11 @@
 import numpy as np
 from math import sqrt
 from data_manager import DataManager
+from plotter import Plotter
 import random
 import utils
 
-timestep = 144
+timestep = 36
 futurestep = 30
 debug = False
 features = ['high', 'low', 'close']
@@ -64,45 +65,5 @@ print('Evaluating model..')
 
 print('Test accuracy: {}'.format(model.evaluate(X_test, y_test)[1]))
 
-from datetime import datetime, timedelta
-start = datetime.now() - timedelta(days=2000)
-import pandas as pd
-pd.core.common.is_list_like = pd.api.types.is_list_like
-import pandas_datareader as web
-supported_symbols = set([i.encode("utf-8") for i in web.get_iex_symbols()['symbol'].values])
-test_symbols = list(set(test_symbols) & supported_symbols)
-
-import matplotlib.pyplot as plt
 preds = model.predict_classes(X_test)
-
-plt.ion()
-for symbol in test_symbols:
-    plt.cla()
-
-    data = web.DataReader(symbol, data_source='iex', start=start)
-    data = data['low'].values
-
-    cols = []
-    for idx, (pt, actual, expected) in enumerate(zip(data, preds, y_test)):
-        if actual != expected:
-            cols.append('blue')
-            continue
-        cols.append('green') if actual else cols.append('red')
-
-    plt.plot(data, color='black')
-    plt.scatter(timestep + np.array(range(len(data[timestep:]))), np.array(data[timestep:]), c=np.array(cols), alpha=0.3)
-
-    from matplotlib.lines import Line2D
-
-    plt.title('Predictions for SYMBOL:{}'.format(symbol))
-    plt.ylabel('price')
-    plt.xlabel('days')
-
-    legend_els = [Line2D([0], [0], marker='o', color='green', label='positive outlook'),
-                  Line2D([0], [0], marker='o', color='red', label='negative outlook'),
-                  Line2D([0], [0], marker='o', color='blue', label='wrong prediction')]
-
-    plt.legend(handles=legend_els)
-
-    plt.show()
-    plt.pause(10)
+Plotter(features).plot_predictions(test_symbols, timestep, preds, y_test)

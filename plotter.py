@@ -1,6 +1,10 @@
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np
+import pandas as pd
+from datetime import datetime, timedelta
+pd.core.common.is_list_like = pd.api.types.is_list_like
+import pandas_datareader as web
 
 
 class Plotter:
@@ -12,20 +16,20 @@ class Plotter:
         self.chart_ax = plt.subplot(gs[:, 0])
         self.features_ax = [plt.subplot(gs[i, -1]) for i in range(self.features.shape[0])]
 
-    def plot(self, symbol, current, future, trend, visual_sample):
+    def plot_time_window(self, symbol, current, future, trend, visual_sample):
         self.f.suptitle('Chart&Visual Train Samples - SYMBOL:{0}'.format(symbol))
 
         self.chart_ax.cla()
 
         # CURRENT
-        self.chart_ax.plot(current[:, -1])
-        self.chart_ax.plot([np.average(current)] * current.shape[0], color='black', label='current avg price')
+        self.chart_ax.plot_time_window(current[:, -1])
+        self.chart_ax.plot_time_window([np.average(current)] * current.shape[0], color='black', label='current avg price')
 
         # FUTURE
         xi = np.array(range(current.shape[0] - 1, current.shape[0] - 1 + future.shape[0]))
         color = 'green' if trend else 'red'
-        self.chart_ax.plot(xi, future[:, -1], linestyle='--')
-        self.chart_ax.plot(xi, [np.average(future)] * xi.shape[0], color=color, label='future avg price')
+        self.chart_ax.plot_time_window(xi, future[:, -1], linestyle='--')
+        self.chart_ax.plot_time_window(xi, [np.average(future)] * xi.shape[0], color=color, label='future avg price')
 
         # PRESENT|FUTURE SEP
         self.chart_ax.axvline(x=current.shape[0] - 1, color='gray', linestyle=':')
@@ -45,3 +49,40 @@ class Plotter:
 
         plt.show()
         plt.pause(.00001)
+
+    def plot_predictions(self, symbols, timestep, y_actual, y_expected):
+        plt.clf()
+
+        start = datetime.now() - timedelta(days=2000)
+
+        for symbol in symbols:
+            plt.cla()
+
+            data = web.DataReader(symbol, data_source='iex', start=start)
+            data = data['low'].values
+
+            cols = []
+            for idx, (pt, actual, expected) in enumerate(zip(data, y_actual, y_expected)):
+                if actual != expected:
+                    cols.append('blue')
+                    continue
+                cols.append('green') if actual else cols.append('red')
+
+            plt.plot(data, color='black')
+            plt.scatter(timestep + np.array(range(len(data[timestep:]))), np.array(data[timestep:]), c=np.array(cols),
+                        alpha=0.3)
+
+            from matplotlib.lines import Line2D
+
+            plt.title('Predictions for SYMBOL:{}'.format(symbol))
+            plt.ylabel('price')
+            plt.xlabel('days')
+
+            legend_els = [Line2D([0], [0], marker='o', color='green', label='positive outlook'),
+                          Line2D([0], [0], marker='o', color='red', label='negative outlook'),
+                          Line2D([0], [0], marker='o', color='blue', label='wrong prediction')]
+
+            plt.legend(handles=legend_els)
+
+            plt.show()
+            plt.pause(10)

@@ -66,7 +66,7 @@ class DataManager:
 
             if self.debug:
                 future = self.scaler.transform(future)
-                self.plotter.plot(symbol, current, future, trend, x[-1])
+                self.plotter.plot_time_window(symbol, current, future, trend, x[-1])
 
         return x, y
 
