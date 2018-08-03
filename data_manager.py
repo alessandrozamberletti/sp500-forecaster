@@ -25,6 +25,8 @@ class DataManager:
 
     def build_windows(self, symbols):
         symbols = list(set(symbols) & self.supported_symbols)
+        assert len(symbols) > 0, 'none of the provided symbols are supported by iex'
+
         x = []
         y = []
         start = datetime.now() - timedelta(days=2000)
@@ -32,11 +34,9 @@ class DataManager:
             # NOTE: extracting too many symbols at once causes error in DataReader parsing
             data = web.DataReader(symbol, data_source='iex', start=start, retry_count=0)
             data = data[self.features].values
-
-            # drop NaNs
             data = data[~np.isnan(data).any(axis=1)]
 
-            window_x, window_y = self.__build_samples(symbol, data)
+            window_x, window_y = self.__build_time_windows(symbol, data)
             assert len(window_x) == len(window_y), 'non matching samples and targets lengths for {}'.format(symbol)
 
             x += window_x
@@ -44,15 +44,15 @@ class DataManager:
 
         return np.array(x), np.array(y)
 
-    def __build_samples(self, symbol, ohlc):
+    def __build_time_windows(self, symbol, data):
         x = []
         y = []
-        for t in range(0, ohlc.shape[0] - self.timestep - self.futurestep):
-            current = ohlc[t:t + self.timestep, :]
-            future = ohlc[t + self.timestep - 1:t + self.timestep - 1 + self.futurestep, :]
+        for t in range(0, data.shape[0] - self.timestep - self.futurestep):
+            current = data[t:t + self.timestep, :]
+            future = data[t + self.timestep - 1:t + self.timestep - 1 + self.futurestep, :]
 
-            current_avg_price = np.average(current[:, -1])
-            future_avg_price = np.average(future[:, -1])
+            current_avg_price = np.average(current)
+            future_avg_price = np.average(future)
             trend = future_avg_price > current_avg_price
 
             p0 = current[0, :]
@@ -71,47 +71,43 @@ class DataManager:
 
         return x, y
 
-    def __normalize(self, price, time_window):
+    @staticmethod
+    def __normalize(price, time_window):
         return time_window/price - 1
 
-    def __plot(self, symbol, current_w, future_w, trend, visual_sample):
+    def __plot(self, symbol, current, future, trend, visual_sample):
         self.f.suptitle('Chart&Visual Train Samples - SYMBOL:{0}'.format(symbol))
 
         self.chart_ax.cla()
 
-        self.chart_ax.plot(current_w[:, -1])
-        self.chart_ax.plot([np.average(current_w) for _ in range(self.timestep)],
-                           color='black',
-                           label='current avg price')
+        # CURRENT
+        self.chart_ax.plot(current[:, -1])
+        self.chart_ax.plot([np.average(current)] * self.timestep, color='black', label='current avg price')
 
+        # FUTURE
         xi = range(self.timestep - 1, self.timestep - 1 + self.futurestep)
         color = 'green' if trend else 'red'
-        self.chart_ax.plot(xi, future_w[:, -1],
-                           linestyle='--')
-        self.chart_ax.plot(xi, [np.average(future_w) for _ in range(len(xi))],
-                           color=color,
-                           label='future avg price')
+        self.chart_ax.plot(xi, future[:, -1], linestyle='--')
+        self.chart_ax.plot(xi, [np.average(future)] * len(xi), color=color, label='future avg price')
 
-        # PRESENT|FUTURE LINE
-        self.chart_ax.axvline(x=self.timestep - 1,
-                              color='gray',
-                              linestyle=':')
+        # PRESENT|FUTURE SEP
+        self.chart_ax.axvline(x=self.timestep - 1, color='gray', linestyle=':')
 
         self.chart_ax.set_title('Chart')
         self.chart_ax.set_xlabel('days')
-        self.chart_ax.set_ylabel('normalized closing price')
+        self.chart_ax.set_ylabel('normalized {} price'.format(self.features[-1]))
         self.chart_ax.legend(loc='upper left')
 
+        # VISUAL SAMPLE CHNS
         for i in range(len(self.visual_ax)):
             ax = self.visual_ax[i]
             ax.cla()
             ax.axis('off')
             ax.set_title(self.features[i])
-            ax.imshow(visual_sample[:, :, i],
-                      cmap='gray')
+            ax.imshow(visual_sample[:, :, i], cmap='gray')
 
         plt.show()
-        plt.pause(.0001)
+        plt.pause(.00001)
 
     def __plot_setup(self):
         plt.ion()
