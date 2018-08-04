@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 from math import sqrt
-from data_manager import DataManager
+from symbol_manager import SymbolManager
 from keras.callbacks import EarlyStopping
 import random
 import utils
@@ -26,7 +26,7 @@ print('SELECTED: {} train symbols - {} test symbols'.format(len(train_symbols), 
 # BUILD TIME WINDOWS
 print('1) Splitting into time windows..')
 
-data_manager = DataManager(timestep, futurestep, features, debug=debug)
+data_manager = SymbolManager(timestep, futurestep, features, debug=debug)
 _, X_train, y_train = data_manager.build_windows(train_symbols)
 
 assert len(X_train) > 0, 'insufficient number of samples'

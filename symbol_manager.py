@@ -9,7 +9,7 @@ pd.core.common.is_list_like = pd.api.types.is_list_like
 import pandas_datareader as web
 
 
-class DataManager:
+class SymbolManager:
     def __init__(self, timestep, futurestep, features, debug=False):
         self.scaler = MinMaxScaler(feature_range=(0, 1))
         self.timestep = timestep
