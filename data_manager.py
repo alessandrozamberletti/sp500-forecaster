@@ -3,10 +3,10 @@ from sklearn.preprocessing import MinMaxScaler
 from math import sqrt
 from datetime import datetime, timedelta
 from tqdm import tqdm
+from plotter import Plotter
 import pandas as pd
 pd.core.common.is_list_like = pd.api.types.is_list_like
 import pandas_datareader as web
-from plotter import Plotter
 
 
 class DataManager:
@@ -32,14 +32,14 @@ class DataManager:
         start = datetime.now() - timedelta(days=2000)
         for symbol in tqdm(symbols, total=len(symbols)):
             # NOTE: extracting too many symbols at once causes error in DataReader parsing
-            data = web.DataReader(symbol, data_source='iex', start=start)
-            data = data[self.features].values
+            ohlcv = web.DataReader(symbol, data_source='iex', start=start)
+            data = ohlcv[self.features].values
             data = data[~np.isnan(data).any(axis=1)]
 
             window_x, window_y = self.__build_time_windows(symbol, data)
             assert len(window_x) == len(window_y), 'non matching samples and targets lengths for {}'.format(symbol)
 
-            symbols_data[symbol] = data
+            symbols_data[symbol] = ohlcv
             x += window_x
             y += window_y
 

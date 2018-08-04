@@ -46,36 +46,3 @@ class Plotter:
         plt.show()
         plt.pause(.00001)
 
-    def plot_predictions(self, data_test, symbols, timestep, y_actual, y_expected):
-        plt.clf()
-
-        for symbol in symbols:
-            plt.cla()
-
-            data = data_test[symbol][:, -1]
-
-            cols = []
-            for idx, (pt, actual, expected) in enumerate(zip(data, y_actual, y_expected)):
-                if actual != expected:
-                    cols.append('blue')
-                    continue
-                cols.append('green') if actual else cols.append('red')
-
-            plt.plot(data, color='black')
-            plt.scatter(timestep + np.array(range(len(data[timestep:]))), np.array(data[timestep:]), c=np.array(cols),
-                        alpha=0.3)
-
-            from matplotlib.lines import Line2D
-
-            plt.title('Predictions for SYMBOL:{}'.format(symbol))
-            plt.ylabel('price')
-            plt.xlabel('days')
-
-            legend_els = [Line2D([0], [0], marker='o', color='green', label='positive outlook'),
-                          Line2D([0], [0], marker='o', color='red', label='negative outlook'),
-                          Line2D([0], [0], marker='o', color='blue', label='wrong prediction')]
-
-            plt.legend(handles=legend_els)
-
-            plt.show()
-            plt.pause(10)
