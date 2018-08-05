@@ -24,14 +24,14 @@ class SymbolManager:
 
     def build_windows(self, symbols):
         symbols = list(set(symbols) & self.supported_symbols)
-        assert len(symbols) > 0, 'none of the provided symbols are supported by iex'
+        assert len(symbols) > 0, 'none of the given symbols are supported by iex'
 
         symbols_data = {}
         x = []
         y = []
         start = datetime.now() - timedelta(days=2000)
         for symbol in tqdm(symbols, total=len(symbols)):
-            # NOTE: extracting too many symbols at once causes error in DataReader parsing
+            # NOTE: for iex extracting too many symbols at once causes error in DataReader parsing
             ohlcv = web.DataReader(symbol, data_source='iex', start=start)
             data = ohlcv[self.features].values
             data = data[~np.isnan(data).any(axis=1)]

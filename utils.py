@@ -1,7 +1,7 @@
 from datapackage import Package
 import numpy as np
 from keras.models import Sequential
-from keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, Dropout
+from keras.layers import Dense, Flatten, Conv2D
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
@@ -32,16 +32,13 @@ def balance(x, y):
     return x, y
 
 
-def cnn(input_size):
+def cnn(input_shape):
     model = Sequential()
-    model.add(Conv2D(24, (3, 3), padding="same", input_shape=input_size))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Conv2D(24, (3, 3), padding="same"))
+    model.add(Conv2D(32, (3, 3), padding="same", input_shape=input_shape))
+    model.add(Conv2D(32, (3, 3), padding="same"))
     model.add(Flatten())
-    model.add(Dropout(.25))
-    model.add(Dense(48))
-    model.add(Dropout(.5))
-    model.add(Dense(96))
+    model.add(Dense(64))
+    model.add(Dense(64))
     model.add(Dense(units=1, activation='sigmoid'))
 
     return model
@@ -73,16 +70,16 @@ def plot_predictions(ohlcv_data, symbols, timestep, y_actual, y_expected):
         c_values = ohlcv_data[symbol]['close'].values
 
         cols = []
-        for idx, (pt, actual, expected) in enumerate(zip(c_values, y_actual, y_expected)):
+        for actual, expected in zip(y_actual, y_expected):
             if actual != expected:
                 cols.append('blue')
                 continue
             cols.append('green') if actual else cols.append('red')
 
         plt.plot(c_values, color='black')
-        pt_x = timestep + np.array(range(len(c_values[timestep:])))
-        pt_y = np.array(c_values[timestep:])
-        plt.scatter(pt_x, pt_y, c=np.array(cols), alpha=0.3)
+        pts_x = timestep + np.array(range(c_values[timestep:].shape[0]))
+        pts_y = c_values[timestep:]
+        plt.scatter(pts_x, pts_y, c=np.array(cols), alpha=0.3)
 
         plt.title('Predictions vs Ground Truth - SYMBOL:{}'.format(symbol))
         plt.ylabel('price')
@@ -97,5 +94,4 @@ def plot_predictions(ohlcv_data, symbols, timestep, y_actual, y_expected):
         plt.show()
         plt.pause(0.001)
 
-        if symbol != symbols[-1]:
-            raw_input('Press Enter to plot next SYMBOL')
+        raw_input('Press Enter to plot next SYMBOL') if symbol != symbols[-1] else raw_input('Press Enter to exit')

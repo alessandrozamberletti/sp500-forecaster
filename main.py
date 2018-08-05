@@ -3,6 +3,7 @@ import numpy as np
 from math import sqrt
 from symbol_manager import SymbolManager
 from keras.callbacks import EarlyStopping
+from keras.optimizers import Adam
 import random
 import utils
 
@@ -46,13 +47,14 @@ print('TRAIN: {} ↓time windows - {} ↑time windows'.format(len(np.where(y_tra
 print('3) Training model..')
 
 ssize = int(sqrt(timestep))
-input_size = (ssize, ssize, len(features))
+input_shape = (ssize, ssize, len(features))
 
-print('Timestep: {} - Futurestep: {} - Input size: {}'.format(timestep, futurestep, input_size))
+print('Timestep: {} - Futurestep: {} - Input size: {}'.format(timestep, futurestep, input_shape))
 
-model = utils.cnn(input_size)
-model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-es = EarlyStopping(monitor='val_loss', min_delta=0, patience=0, verbose=0, mode='auto', baseline=None)
+model = utils.cnn(input_shape)
+opt = Adam(lr=0.0001, decay=0.01)
+model.compile(loss='binary_crossentropy', optimizer=opt, metrics=['accuracy'])
+es = EarlyStopping(monitor='val_loss', min_delta=0, patience=2, verbose=1, mode='auto')
 hist = model.fit(X_train, y_train, shuffle=True, epochs=100, validation_split=0.2, callbacks=[es])
 
 utils.plot_loss(hist)
@@ -72,5 +74,3 @@ print('5) Showing results for {} test symbols from sp500'.format(len(test_symbol
 
 preds = model.predict_classes(X_test)
 utils.plot_predictions(ohlcv_test, test_symbols, timestep, preds, y_test)
-
-raw_input("Press Enter to exit..")
