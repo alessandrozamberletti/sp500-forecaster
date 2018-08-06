@@ -16,7 +16,7 @@ features = ['high', 'low', 'close']
 print('0) Retrieving SP500 symbols..')
 
 sp500_symbols = utils.sp500_symbols()
-sp500_symbols = random.sample(sp500_symbols, 3)
+sp500_symbols = random.sample(sp500_symbols, 150)
 
 train_symbols, test_symbols = utils.split(sp500_symbols, .8)
 
@@ -62,7 +62,7 @@ utils.plot_loss(hist)
 # EVALUATE MODEL
 print('4) Evaluating model..')
 
-ohlcv_test, X_test, y_test = data_manager.build_windows(test_symbols)
+data_test, X_test, y_test = data_manager.build_windows(test_symbols)
 
 print('TEST: {} ↓time windows - {} ↑time windows'.format(len(np.where(y_test == 0)[0]), len(np.where(y_test)[0])))
 
@@ -73,4 +73,4 @@ print('Test loss: {} - Test accuracy: {}'.format(test_results[0], test_results[1
 print('5) Showing results for {} test symbols from sp500'.format(len(test_symbols)))
 
 preds = model.predict_classes(X_test)
-utils.plot_predictions(ohlcv_test, test_symbols, timestep, preds, y_test)
+utils.plot_predictions(data_test, test_symbols, timestep, futurestep, preds, y_test)

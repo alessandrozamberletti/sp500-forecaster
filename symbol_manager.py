@@ -36,10 +36,12 @@ class SymbolManager:
             data = ohlcv[self.features].values
             data = data[~np.isnan(data).any(axis=1)]
 
-            window_x, window_y = self.__build_time_windows(symbol, data)
+            current, future, window_x, window_y = self.__build_time_windows(symbol, data)
             assert len(window_x) == len(window_y), 'non matching samples and targets lengths for {}'.format(symbol)
 
-            symbols_data[symbol] = ohlcv
+            symbols_data[symbol] = {'ohlcv': ohlcv,
+                                    'current': np.array(current),
+                                    'future': np.array(future)}
             x += window_x
             y += window_y
 
@@ -48,6 +50,8 @@ class SymbolManager:
     def __build_time_windows(self, symbol, data):
         x = []
         y = []
+        current_wins = []
+        future_wins = []
         for t in range(0, data.shape[0] - self.timestep - self.futurestep):
             current = data[t:t + self.timestep, :]
             future = data[t + self.timestep - 1:t + self.timestep - 1 + self.futurestep, :]
@@ -57,19 +61,21 @@ class SymbolManager:
             trend = future_avg_price > current_avg_price
 
             p0 = current[0, :]
-            current = self.__normalize(p0, current)
-            current = self.scaler.fit_transform(current)
+            norm_current = self.__normalize(p0, current)
+            norm_current = self.scaler.fit_transform(norm_current)
 
             ssize = int(sqrt(self.timestep))
-            x.append(current.reshape(ssize, ssize, self.chns))
+            x.append(norm_current.reshape(ssize, ssize, self.chns))
             y.append(trend)
+            current_wins.append(current)
+            future_wins.append(future)
 
             if self.debug:
-                future = self.__normalize(p0, future)
-                future = self.scaler.transform(future)
-                self.plotter.plot_time_window(symbol, current, future, trend, x[-1])
+                norm_future = self.__normalize(p0, future)
+                norm_future = self.scaler.transform(norm_future)
+                self.plotter.plot_time_window(symbol, norm_current, norm_future, trend, x[-1])
 
-        return x, y
+        return current_wins, future_wins, x, y
 
     @staticmethod
     def __normalize(price, time_window):

@@ -60,34 +60,43 @@ def plot_loss(data):
     plt.pause(0.0001)
 
 
-def plot_predictions(ohlcv_data, symbols, timestep, y_actual, y_expected):
+def plot_predictions(data, symbols, timestep, futurestep, y_actual, y_expected):
     plt.ion()
     plt.figure()
 
     for symbol in symbols:
         plt.cla()
 
-        c_values = ohlcv_data[symbol]['close'].values
-
-        cols = []
-        for actual, expected in zip(y_actual, y_expected):
-            if actual != expected:
-                cols.append('blue')
-                continue
-            cols.append('green') if actual else cols.append('red')
-
+        c_values = data[symbol]['ohlcv']['close'].values
         plt.plot(c_values, color='black')
-        pts_x = timestep + np.array(range(c_values[timestep:].shape[0]))
-        pts_y = c_values[timestep:]
-        plt.scatter(pts_x, pts_y, c=np.array(cols), alpha=0.3)
+
+        pts_x = timestep + np.array(range(c_values[timestep:-futurestep].shape[0]))
+        pts_y = c_values[timestep:-futurestep]
+
+        for x, y, actual, expected in zip(pts_x, pts_y, y_actual, y_expected):
+            if actual != expected:
+                plt.scatter(x, y, marker='*', color='blue')
+                continue
+            if actual:
+                plt.scatter(x, y, marker='^', color='green')
+            else:
+                plt.scatter(x, y, marker='v', color='red')
+
+        current_avg = np.average(data[symbol]['current'][:, -futurestep:, -1], axis=1)
+        plt.plot(pts_x, current_avg, color='pink')
+
+        future_avg = np.average(data[symbol]['future'][:, :, -1], axis=1)
+        plt.plot(pts_x, future_avg, color='cyan')
 
         plt.title('Predictions vs Ground Truth - SYMBOL:{}'.format(symbol))
         plt.ylabel('price')
         plt.xlabel('days')
 
-        legend_els = [Line2D([0], [0], marker='o', color='green', label='positive outlook'),
-                      Line2D([0], [0], marker='o', color='red', label='negative outlook'),
-                      Line2D([0], [0], marker='o', color='blue', label='wrong prediction')]
+        legend_els = [Line2D([], [], marker='^', color='green', label='positive outlook', linestyle=None),
+                      Line2D([], [], marker='v', color='red', label='negative outlook', linestyle=None),
+                      Line2D([], [], marker='*', color='blue', label='wrong prediction', linestyle=None),
+                      Line2D([0], [0], color='pink', label='past {} days avg. price'.format(futurestep)),
+                      Line2D([0], [0], color='cyan', label='future {} days avg. price'.format(futurestep))]
 
         plt.legend(handles=legend_els)
 
