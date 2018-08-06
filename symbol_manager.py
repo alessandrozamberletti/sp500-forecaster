@@ -52,14 +52,12 @@ class SymbolManager:
             current = data[t:t + self.timestep, :]
             future = data[t + self.timestep - 1:t + self.timestep - 1 + self.futurestep, :]
 
-            current_avg_price = np.average(current)
-            future_avg_price = np.average(future)
+            current_avg_price = np.average(current[-self.futurestep:, -1])
+            future_avg_price = np.average(future[:, -1])
             trend = future_avg_price > current_avg_price
 
             p0 = current[0, :]
             current = self.__normalize(p0, current)
-            future = self.__normalize(p0, future)
-
             current = self.scaler.fit_transform(current)
 
             ssize = int(sqrt(self.timestep))
@@ -67,6 +65,7 @@ class SymbolManager:
             y.append(trend)
 
             if self.debug:
+                future = self.__normalize(p0, future)
                 future = self.scaler.transform(future)
                 self.plotter.plot_time_window(symbol, current, future, trend, x[-1])
 

@@ -16,7 +16,7 @@ features = ['high', 'low', 'close']
 print('0) Retrieving SP500 symbols..')
 
 sp500_symbols = utils.sp500_symbols()
-sp500_symbols = random.sample(sp500_symbols, 10)
+sp500_symbols = random.sample(sp500_symbols, 3)
 
 train_symbols, test_symbols = utils.split(sp500_symbols, .8)
 
