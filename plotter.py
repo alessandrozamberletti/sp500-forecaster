@@ -19,7 +19,7 @@ class Plotter:
 
         # CURRENT
         self.chart_ax.plot_time_window(current[:, -1])
-        self.chart_ax.plot_time_window([np.average(current)] * current.shape[0], color='black', label='current avg price')
+        self.chart_ax.plot_time_window([np.average(current)] * current.shape[0], color='black', label='past avg price')
 
         # FUTURE
         xi = np.array(range(current.shape[0] - 1, current.shape[0] - 1 + future.shape[0]))
@@ -44,5 +44,4 @@ class Plotter:
         self.chart_ax.legend(loc='upper left')
 
         plt.show()
-        plt.pause(.00001)
-
+        plt.pause(.0001)

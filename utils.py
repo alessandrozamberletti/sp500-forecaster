@@ -64,8 +64,8 @@ def plot_predictions(data, symbols, timestep, futurestep, y_actual, y_expected):
     for symbol in symbols:
         plt.figure()
 
-        symbol_chart = data[symbol]['ohlcv']['close'].values[timestep:]
-        plt.plot(symbol_chart, color='black')
+        chart = data[symbol]['ohlcv']['close'].values[timestep:]
+        plt.plot(chart, color='black')
 
         current_avg = np.average(data[symbol]['current'][:, -futurestep:, -1], axis=1)
         plt.plot(current_avg, color='pink')
@@ -75,7 +75,7 @@ def plot_predictions(data, symbols, timestep, futurestep, y_actual, y_expected):
 
         for idx, (y_act, y_exp) in enumerate(zip(y_actual, y_expected)):
             if y_act != y_exp:
-                plt.scatter(idx, symbol_chart[idx], marker='+', color='blue')
+                plt.scatter(idx, chart[idx], marker='+', color='blue')
                 continue
             if y_act:
                 plt.scatter(idx, future_avg[idx], marker='^', color='green')
@@ -89,7 +89,7 @@ def plot_predictions(data, symbols, timestep, futurestep, y_actual, y_expected):
         legend = [Line2D([], [], marker='^', color='green', label='positive outlook', linestyle='None'),
                   Line2D([], [], marker='v', color='red', label='negative outlook', linestyle='None'),
                   Line2D([], [], marker='+', color='blue', label='wrong prediction', linestyle='None'),
-                  Line2D([], [], color='pink', label='previous {} days avg. price'.format(futurestep)),
+                  Line2D([], [], color='pink', label='past {} days avg. price'.format(futurestep)),
                   Line2D([], [], color='cyan', label='future {} days avg. price'.format(futurestep))]
 
         plt.legend(handles=legend)
