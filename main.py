@@ -25,8 +25,8 @@ print('SELECTED: {} train symbols - {} test symbols'.format(len(train_symbols), 
 # BUILD TIME WINDOWS
 print('1) Splitting into time windows..')
 
-data_manager = SymbolManager(timestep, futurestep, features, debug=debug)
-_, X_train, y_train = data_manager.build_windows(train_symbols)
+symbol_manager = SymbolManager(features, debug=debug)
+_, X_train, y_train = symbol_manager.build_windows(train_symbols, timestep, futurestep)
 assert len(X_train) > 0, 'insufficient number of samples'
 print('BUILT: {} train time windows'.format(len(X_train)))
 
@@ -45,7 +45,7 @@ input_shape = (ssize, ssize, len(features))
 print('Timestep: {} - Futurestep: {} - Input size: {}'.format(timestep, futurestep, input_shape))
 
 model = utils.cnn(input_shape)
-opt = Adam(lr=0.0001, decay=0.01)
+opt = Adam(lr=0.001, decay=0.01)
 model.compile(loss='binary_crossentropy', optimizer=opt, metrics=['accuracy'])
 es = EarlyStopping(monitor='val_loss', min_delta=0, patience=2, verbose=1, mode='auto')
 hist = model.fit(X_train, y_train, shuffle=True, epochs=100, validation_split=0.2, callbacks=[es])
@@ -55,7 +55,7 @@ utils.plot_loss(hist)
 # EVALUATE MODEL
 print('4) Evaluating model..')
 
-data_test, X_test, y_test = data_manager.build_windows(test_symbols)
+data_test, X_test, y_test = symbol_manager.build_windows(test_symbols, timestep, futurestep)
 print('TEST: {} ↓time windows - {} ↑time windows'.format(len(np.where(y_test == 0)[0]), len(np.where(y_test)[0])))
 
 test_results = model.evaluate(X_test, y_test)

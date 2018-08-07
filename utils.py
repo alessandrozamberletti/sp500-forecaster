@@ -73,14 +73,14 @@ def plot_predictions(data, symbols, timestep, futurestep, y_actual, y_expected):
         future_avg = np.average(data[symbol]['future'][:, :, -1], axis=1)
         plt.plot(future_avg, color='cyan')
 
-        for idx, (y_act, y_exp) in enumerate(zip(y_actual, y_expected)):
+        for data, cur, fut, y_act, y_exp in zip(chart, current_avg, future_avg, y_actual, y_expected):
             if y_act != y_exp:
-                plt.scatter(idx, chart[idx], marker='+', color='blue')
+                plt.scatter(data, marker='+', color='blue')
                 continue
             if y_act:
-                plt.scatter(idx, future_avg[idx], marker='^', color='green')
+                plt.scatter(fut, marker='^', color='green')
             else:
-                plt.scatter(idx, current_avg[idx], marker='v', color='red')
+                plt.scatter(cur, marker='v', color='red')
 
         plt.title('Predictions vs Ground Truth - SYMBOL:{}'.format(symbol))
         plt.ylabel('price')
