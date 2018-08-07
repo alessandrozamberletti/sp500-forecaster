@@ -61,46 +61,37 @@ def plot_loss(data):
 
 
 def plot_predictions(data, symbols, timestep, futurestep, y_actual, y_expected):
-    plt.ion()
-    plt.figure()
-
     for symbol in symbols:
-        plt.cla()
+        plt.figure()
 
-        c_values = data[symbol]['ohlcv']['close'].values
-        plt.plot(c_values, color='black')
-
-        pts_x = timestep + np.array(range(c_values[timestep:-futurestep].shape[0]))
-        pts_y = c_values[timestep:-futurestep]
-
-        for x, y, actual, expected in zip(pts_x, pts_y, y_actual, y_expected):
-            if actual != expected:
-                plt.scatter(x, y, marker='*', color='blue')
-                continue
-            if actual:
-                plt.scatter(x, y, marker='^', color='green')
-            else:
-                plt.scatter(x, y, marker='v', color='red')
+        symbol_chart = data[symbol]['ohlcv']['close'].values[timestep:]
+        plt.plot(symbol_chart, color='black')
 
         current_avg = np.average(data[symbol]['current'][:, -futurestep:, -1], axis=1)
-        plt.plot(pts_x, current_avg, color='pink')
+        plt.plot(current_avg, color='pink')
 
         future_avg = np.average(data[symbol]['future'][:, :, -1], axis=1)
-        plt.plot(pts_x, future_avg, color='cyan')
+        plt.plot(future_avg, color='cyan')
+
+        for idx, (y_act, y_exp) in enumerate(zip(y_actual, y_expected)):
+            if y_act != y_exp:
+                plt.scatter(idx, symbol_chart[idx], marker='+', color='blue')
+                continue
+            if y_act:
+                plt.scatter(idx, future_avg[idx], marker='^', color='green')
+            else:
+                plt.scatter(idx, current_avg[idx], marker='v', color='red')
 
         plt.title('Predictions vs Ground Truth - SYMBOL:{}'.format(symbol))
         plt.ylabel('price')
         plt.xlabel('days')
 
-        legend_els = [Line2D([], [], marker='^', color='green', label='positive outlook', linestyle=None),
-                      Line2D([], [], marker='v', color='red', label='negative outlook', linestyle=None),
-                      Line2D([], [], marker='*', color='blue', label='wrong prediction', linestyle=None),
-                      Line2D([0], [0], color='pink', label='past {} days avg. price'.format(futurestep)),
-                      Line2D([0], [0], color='cyan', label='future {} days avg. price'.format(futurestep))]
+        legend = [Line2D([], [], marker='^', color='green', label='positive outlook', linestyle='None'),
+                  Line2D([], [], marker='v', color='red', label='negative outlook', linestyle='None'),
+                  Line2D([], [], marker='+', color='blue', label='wrong prediction', linestyle='None'),
+                  Line2D([], [], color='pink', label='previous {} days avg. price'.format(futurestep)),
+                  Line2D([], [], color='cyan', label='future {} days avg. price'.format(futurestep))]
 
-        plt.legend(handles=legend_els)
+        plt.legend(handles=legend)
 
         plt.show()
-        plt.pause(0.001)
-
-        raw_input('Press Enter to plot next SYMBOL') if symbol != symbols[-1] else raw_input('Press Enter to exit')

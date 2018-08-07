@@ -16,7 +16,7 @@ features = ['high', 'low', 'close']
 print('0) Retrieving SP500 symbols..')
 
 sp500_symbols = utils.sp500_symbols()
-sp500_symbols = random.sample(sp500_symbols, 150)
+sp500_symbols = random.sample(sp500_symbols, 3)
 
 train_symbols, test_symbols = utils.split(sp500_symbols, .8)
 
@@ -74,3 +74,5 @@ print('5) Showing results for {} test symbols from sp500'.format(len(test_symbol
 
 preds = model.predict_classes(X_test)
 utils.plot_predictions(data_test, test_symbols, timestep, futurestep, preds, y_test)
+
+raw_input('Press Enter to exit')
