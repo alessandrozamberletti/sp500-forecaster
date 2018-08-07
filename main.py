@@ -19,9 +19,7 @@ sp500_symbols = utils.sp500_symbols()
 sp500_symbols = random.sample(sp500_symbols, 3)
 
 train_symbols, test_symbols = utils.split(sp500_symbols, .8)
-
 assert len(train_symbols) > 0 and len(test_symbols), 'no valid symbols found'
-
 print('SELECTED: {} train symbols - {} test symbols'.format(len(train_symbols), len(test_symbols)))
 
 # BUILD TIME WINDOWS
@@ -29,18 +27,14 @@ print('1) Splitting into time windows..')
 
 data_manager = SymbolManager(timestep, futurestep, features, debug=debug)
 _, X_train, y_train = data_manager.build_windows(train_symbols)
-
 assert len(X_train) > 0, 'insufficient number of samples'
-
 print('BUILT: {} train time windows'.format(len(X_train)))
 
 # BALANCE DATASET
 print('2) Balancing data..')
 
 X_train, y_train = utils.balance(X_train, y_train)
-
 assert len(X_train) > 0, 'insufficient number of samples'
-
 print('TRAIN: {} ↓time windows - {} ↑time windows'.format(len(np.where(y_train == 0)[0]), len(np.where(y_train)[0])))
 
 # TRAIN MODEL
@@ -48,7 +42,6 @@ print('3) Training model..')
 
 ssize = int(sqrt(timestep))
 input_shape = (ssize, ssize, len(features))
-
 print('Timestep: {} - Futurestep: {} - Input size: {}'.format(timestep, futurestep, input_shape))
 
 model = utils.cnn(input_shape)
@@ -63,7 +56,6 @@ utils.plot_loss(hist)
 print('4) Evaluating model..')
 
 data_test, X_test, y_test = data_manager.build_windows(test_symbols)
-
 print('TEST: {} ↓time windows - {} ↑time windows'.format(len(np.where(y_test == 0)[0]), len(np.where(y_test)[0])))
 
 test_results = model.evaluate(X_test, y_test)
