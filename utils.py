@@ -60,27 +60,24 @@ def plot_loss(data):
     plt.pause(0.0001)
 
 
-def plot_predictions(data, symbols, timestep, futurestep, y_actual, y_expected):
-    for symbol in symbols:
+def plot_predictions(symbols_data, timestep, futurestep, y_expected, y_actual):
+    for symbol, data in symbols_data.items():
         plt.figure()
 
-        chart = data[symbol]['ohlcv']['close'].values[timestep:]
+        chart = data['ohlcv']['close'].values[timestep:]
         plt.plot(chart, color='black')
 
-        current_avg = np.average(data[symbol]['current'][:, -futurestep:, -1], axis=1)
+        current_avg = np.average(data['current'][:, -futurestep:, -1], axis=1)
         plt.plot(current_avg, color='pink')
 
-        future_avg = np.average(data[symbol]['future'][:, :, -1], axis=1)
+        future_avg = np.average(data['future'][:, :, -1], axis=1)
         plt.plot(future_avg, color='cyan')
 
-        for data, cur, fut, y_act, y_exp in zip(chart, current_avg, future_avg, y_actual, y_expected):
-            if y_act != y_exp:
-                plt.scatter(data, marker='+', color='blue')
+        for idx, (y, cur, fut, pred, gt) in enumerate(zip(chart, current_avg, future_avg, y_actual, y_expected)):
+            if pred != gt:
+                plt.scatter(idx, y, marker='+', color='blue')
                 continue
-            if y_act:
-                plt.scatter(fut, marker='^', color='green')
-            else:
-                plt.scatter(cur, marker='v', color='red')
+            plt.scatter(idx, fut, marker='^', color='green') if pred else plt.scatter(idx, cur, marker='v', color='red')
 
         plt.title('Predictions vs Ground Truth - SYMBOL:{}'.format(symbol))
         plt.ylabel('price')

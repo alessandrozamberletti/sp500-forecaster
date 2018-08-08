@@ -16,7 +16,7 @@ features = ['high', 'low', 'close']
 print('0) Retrieving SP500 symbols..')
 
 sp500_symbols = utils.sp500_symbols()
-sp500_symbols = random.sample(sp500_symbols, 3)
+sp500_symbols = random.sample(sp500_symbols, 6)
 
 train_symbols, test_symbols = utils.split(sp500_symbols, .8)
 assert len(train_symbols) > 0 and len(test_symbols), 'no valid symbols found'
@@ -48,7 +48,7 @@ model = utils.cnn(input_shape)
 opt = Adam(lr=0.001, decay=0.01)
 model.compile(loss='binary_crossentropy', optimizer=opt, metrics=['accuracy'])
 es = EarlyStopping(monitor='val_loss', min_delta=0, patience=2, verbose=1, mode='auto')
-hist = model.fit(X_train, y_train, shuffle=True, epochs=100, validation_split=0.2, callbacks=[es])
+hist = model.fit(X_train, y_train, shuffle=True, epochs=1, validation_split=0.2, callbacks=[es])
 
 utils.plot_loss(hist)
 
@@ -65,6 +65,6 @@ print('Test loss: {} - Test accuracy: {}'.format(test_results[0], test_results[1
 print('5) Showing results for {} test symbols from sp500'.format(len(test_symbols)))
 
 preds = model.predict_classes(X_test)
-utils.plot_predictions(data_test, test_symbols, timestep, futurestep, preds, y_test)
+utils.plot_predictions(data_test, timestep, futurestep, y_test, preds)
 
 raw_input('Press Enter to exit')
