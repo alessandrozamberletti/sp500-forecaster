@@ -60,9 +60,9 @@ def plot_loss(data):
     plt.pause(0.0001)
 
 
-def plot_predictions(symbols_data, timestep, futurestep, y_expected, y_actual):
+def save_predictions(symbols_data, timestep, futurestep, y_expected, y_actual):
     for symbol, data in symbols_data.items():
-        plt.figure()
+        plt.cla()
 
         chart = data['ohlcv']['close'].values[timestep:]
         plt.plot(chart, color='black')
@@ -91,4 +91,4 @@ def plot_predictions(symbols_data, timestep, futurestep, y_expected, y_actual):
 
         plt.legend(handles=legend)
 
-        plt.show()
+        plt.savefig('out/{}.png'.format(symbol), bbox_inches='tight')

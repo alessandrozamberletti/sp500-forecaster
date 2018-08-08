@@ -3,7 +3,7 @@ import numpy as np
 from math import sqrt
 from symbol_manager import SymbolManager
 from keras.callbacks import EarlyStopping
-from keras.optimizers import Adam
+from keras.optimizers import SGD
 import random
 import utils
 
@@ -16,7 +16,7 @@ features = ['high', 'low', 'close']
 print('0) Retrieving SP500 symbols..')
 
 sp500_symbols = utils.sp500_symbols()
-sp500_symbols = random.sample(sp500_symbols, 6)
+# sp500_symbols = random.sample(sp500_symbols, 10)
 
 train_symbols, test_symbols = utils.split(sp500_symbols, .8)
 assert len(train_symbols) > 0 and len(test_symbols), 'no valid symbols found'
@@ -45,10 +45,10 @@ input_shape = (ssize, ssize, len(features))
 print('Timestep: {} - Futurestep: {} - Input size: {}'.format(timestep, futurestep, input_shape))
 
 model = utils.cnn(input_shape)
-opt = Adam(lr=0.001, decay=0.01)
+opt = SGD(lr=0.001, decay=1e-6, momentum=0.9, nesterov=False)
 model.compile(loss='binary_crossentropy', optimizer=opt, metrics=['accuracy'])
-es = EarlyStopping(monitor='val_loss', min_delta=0, patience=2, verbose=1, mode='auto')
-hist = model.fit(X_train, y_train, shuffle=True, epochs=1, validation_split=0.2, callbacks=[es])
+es = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1, mode='auto')
+hist = model.fit(X_train, y_train, shuffle=True, epochs=100, validation_split=0.2, callbacks=[es])
 
 utils.plot_loss(hist)
 
@@ -61,10 +61,6 @@ print('TEST: {} ↓time windows - {} ↑time windows'.format(len(np.where(y_test
 test_results = model.evaluate(X_test, y_test)
 print('Test loss: {} - Test accuracy: {}'.format(test_results[0], test_results[1]))
 
-# DISPLAY PREDICTIONS VS GT
-print('5) Showing results for {} test symbols from sp500'.format(len(test_symbols)))
-
+print('5) Saving results to /out for {} test symbols'.format(len(test_symbols)))
 preds = model.predict_classes(X_test)
-utils.plot_predictions(data_test, timestep, futurestep, y_test, preds)
-
-raw_input('Press Enter to exit')
+utils.save_predictions(data_test, timestep, futurestep, y_test, preds)
