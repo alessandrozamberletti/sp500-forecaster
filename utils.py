@@ -60,7 +60,7 @@ def plot_loss(data):
     plt.pause(0.0001)
 
 
-def save_predictions(symbols_data, timestep, futurestep, y_expected, y_actual):
+def save_predictions(symbols_data, timestep, futurestep, y_actual):
     for symbol, data in symbols_data.items():
         plt.cla()
 
@@ -73,6 +73,7 @@ def save_predictions(symbols_data, timestep, futurestep, y_expected, y_actual):
         future_avg = np.average(data['future'][:, :, -1], axis=1)
         plt.plot(future_avg, color='cyan')
 
+        y_expected = data['trend']
         for idx, (y, cur, fut, pred, gt) in enumerate(zip(chart, current_avg, future_avg, y_actual, y_expected)):
             if pred != gt:
                 plt.scatter(idx, y, marker='+', color='blue')

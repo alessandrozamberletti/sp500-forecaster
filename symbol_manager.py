@@ -40,7 +40,8 @@ class SymbolManager:
 
             symbols_data[symbol] = {'ohlcv': ohlcv,
                                     'current': np.array(current),
-                                    'future': np.array(future)}
+                                    'future': np.array(future),
+                                    'trend': y_exp}
             x += current_visual
             y += y_exp
 
