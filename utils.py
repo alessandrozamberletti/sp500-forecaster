@@ -4,6 +4,7 @@ from keras.models import Sequential
 from keras.layers import Dense, Flatten, Conv2D
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
+import matplotlib.patches as mpatches
 
 
 def sp500_symbols():
@@ -76,17 +77,20 @@ def save_predictions(symbols_data, timestep, futurestep, y_actual):
         y_expected = data['trend']
         for idx, (y, cur, fut, pred, gt) in enumerate(zip(chart, current_avg, future_avg, y_actual, y_expected)):
             if pred != gt:
-                plt.scatter(idx, y, marker='+', color='blue')
+                plt.axvspan(idx, idx+1, facecolor='blue', alpha=.5)
                 continue
-            plt.scatter(idx, fut, marker='^', color='green') if pred else plt.scatter(idx, cur, marker='v', color='red')
+            if pred:
+                plt.axvspan(idx, idx+1, facecolor='green', alpha=.5)
+            else:
+                plt.axvspan(idx, idx+1, facecolor='red', alpha=.5)
 
         plt.title('Predictions vs Ground Truth - SYMBOL:{}'.format(symbol))
         plt.ylabel('price')
         plt.xlabel('days')
 
-        legend = [Line2D([], [], marker='^', color='green', label='positive outlook', linestyle='None'),
-                  Line2D([], [], marker='v', color='red', label='negative outlook', linestyle='None'),
-                  Line2D([], [], marker='+', color='blue', label='wrong prediction', linestyle='None'),
+        legend = [mpatches.Patch(color='green', label='gt == pred == positive outlook'),
+                  mpatches.Patch(color='red', label='gt == pred == negative outlook'),
+                  mpatches.Patch(color='blue', label='gt != pred, wrong outlook'),
                   Line2D([], [], color='pink', label='past {} days avg. price'.format(futurestep)),
                   Line2D([], [], color='cyan', label='future {} days avg. price'.format(futurestep))]
 
