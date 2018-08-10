@@ -32,17 +32,25 @@ class SymbolManager:
         # NOTE: data spans back to a maximum of 5 years
         start = datetime.now() - timedelta(days=2000)
         for symbol in tqdm(self.symbols, total=len(self.symbols)):
-            # NOTE: extracting too many symbols at once causes error in DailyReader parsing
-            ohlcv = web.DataReader(symbol, data_source='iex', start=start)
+            # NOTE: extracting too many symbols at once causes key error in IEXDailyReader
+            # noinspection PyBroadException
+            try:
+                ohlcv = web.DataReader(symbol, data_source='iex', start=start)
+            except Exception:
+                # remove failed symbol from symbol list
+                self.symbols.remove(symbol)
+                continue
 
+            # select feature columns
             data = ohlcv[self.features].values
+
+            # drop NaNs
             data = data[~np.isnan(data).any(axis=1)]
             if ohlcv.shape[0] == 0:
                 print('no data for {}, skipping'.format(symbol))
                 continue
 
             current, future, x, y = self.__build_time_windows(symbol, data)
-            assert len(x) == len(y), 'non matching samples and targets lengths for {}'.format(symbol)
 
             symbols_data[symbol] = {'ohlcv': ohlcv,
                                     'current': current,
