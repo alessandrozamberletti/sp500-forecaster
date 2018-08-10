@@ -37,14 +37,17 @@ class SymbolManager:
 
             data = ohlcv[self.features].values
             data = data[~np.isnan(data).any(axis=1)]
+            if ohlcv.shape[0] == 0:
+                print('no data for {}, skipping'.format(symbol))
+                continue
 
-            current, future, sample, y = self.__build_time_windows(symbol, data)
-            assert len(sample) == len(y), 'non matching samples and targets lengths for {}'.format(symbol)
+            current, future, x, y = self.__build_time_windows(symbol, data)
+            assert len(x) == len(y), 'non matching samples and targets lengths for {}'.format(symbol)
 
             symbols_data[symbol] = {'ohlcv': ohlcv,
                                     'current': current,
                                     'future': future,
-                                    'x': sample,
+                                    'x': x,
                                     'y': y}
 
         return symbols_data
