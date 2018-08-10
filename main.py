@@ -20,6 +20,18 @@ train_data = SymbolManager(train_symbols, features, timestep, futurestep, debug=
 assert len(train_data.x) == len(train_data.y) and len(train_data.x) > 0, 'insufficient number of samples'
 print('** {} ↓time windows - {} ↑time windows'.format(utils.count_neg(train_data.y), utils.count_pos(train_data.y)))
 
+import pickle
+print('saving')
+binary_file = open('test_symbols.bin', mode='wb')
+pickle.dump(test_symbols, binary_file)
+binary_file.close()
+
+binary_file = open('train_data.bin', mode='wb')
+pickle.dump(train_data, binary_file)
+binary_file.close()
+
+exit(0)
+
 # TRAIN MODEL
 print('* Training model..')
 print('** timestep: {} - futurestep: {}'.format(timestep, futurestep))
