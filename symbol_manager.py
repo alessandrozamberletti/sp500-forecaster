@@ -24,8 +24,6 @@ class SymbolManager:
         assert len(symbols) > 0, 'none of the given symbols are supported by IEX'
 
         symbols_data = {}
-        x = []
-        y = []
         # NOTE: IEX data spans back to a maximum of 5 years
         start = datetime.now() - timedelta(days=2000)
         for symbol in tqdm(symbols, total=len(symbols)):
@@ -39,13 +37,12 @@ class SymbolManager:
             assert len(current_visual) == len(y_exp), 'non matching samples and targets lengths for {}'.format(symbol)
 
             symbols_data[symbol] = {'ohlcv': ohlcv,
-                                    'current': np.array(current),
-                                    'future': np.array(future),
-                                    'trend': y_exp}
-            x += current_visual
-            y += y_exp
+                                    'current': current,
+                                    'future': future,
+                                    'x': current_visual,
+                                    'y': y_exp}
 
-        return symbols_data, np.array(x), np.array(y)
+        return symbols_data
 
     def __build_time_windows(self, symbol, data, timestep, futurestep):
         x = []
@@ -84,7 +81,7 @@ class SymbolManager:
                 norm_future = self.scaler.transform(norm_future)
                 self.plotter.plot_time_window(symbol, norm_current, norm_future, trend, x[-1])
 
-        return current_wins, future_wins, x, y
+        return np.array(current_wins), np.array(future_wins), np.array(x), np.array(y)
 
     @staticmethod
     def __scale(price, time_window):

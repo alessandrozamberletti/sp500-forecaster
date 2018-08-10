@@ -2,6 +2,8 @@ from datapackage import Package
 import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense, Flatten, Conv2D
+from keras.callbacks import EarlyStopping
+from keras.optimizers import SGD
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import matplotlib.patches as mpatches
@@ -15,6 +17,10 @@ def sp500_symbols():
             sp500 = [s[0].encode('utf-8') for s in resource.read()]
 
     return sp500
+
+
+def vectorize(symbols_data, key):
+    return np.concatenate([data[key] for _, data in symbols_data.items()])
 
 
 def split(data, ratio):
@@ -33,16 +39,28 @@ def balance(x, y):
     return x, y
 
 
-def cnn(input_shape):
+def cnn(x, y, input_shape):
     model = Sequential()
-    model.add(Conv2D(32, (3, 3), padding="same", input_shape=input_shape))
-    model.add(Conv2D(32, (3, 3), padding="same"))
+    model.add(Conv2D(8, (2, 2), input_shape=input_shape))
+    model.add(Conv2D(12, (2, 2)))
+    model.add(Conv2D(16, (2, 2)))
+    model.add(Conv2D(20, (2, 2)))
+    model.add(Conv2D(24, (2, 2)))
+    model.add(Conv2D(28, (2, 2)))
+    model.add(Conv2D(32, (2, 2)))
+    model.add(Conv2D(36, (2, 2)))
+    model.add(Conv2D(40, (2, 2)))
     model.add(Flatten())
-    model.add(Dense(64))
-    model.add(Dense(64))
+    model.add(Dense(32))
     model.add(Dense(units=1, activation='sigmoid'))
 
-    return model
+    opt = SGD(lr=0.001, decay=1e-6, momentum=0.9, nesterov=False)
+    model.compile(loss='binary_crossentropy', optimizer=opt, metrics=['accuracy'])
+    es = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1, mode='auto')
+
+    hist = model.fit(x, y, shuffle=True, epochs=1, validation_split=0.2, callbacks=[es])
+
+    return model, hist
 
 
 def plot_loss(data):
@@ -74,7 +92,7 @@ def save_predictions(symbols_data, timestep, futurestep, y_actual):
         future_avg = np.average(data['future'][:, :, -1], axis=1)
         plt.plot(future_avg, color='cyan')
 
-        y_expected = data['trend']
+        y_expected = data['y']
         for idx, (y, cur, fut, pred, gt) in enumerate(zip(chart, current_avg, future_avg, y_actual, y_expected)):
             if pred != gt:
                 plt.axvspan(idx, idx+1, facecolor='blue', alpha=.5)
