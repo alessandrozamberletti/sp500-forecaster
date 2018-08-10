@@ -15,7 +15,7 @@ class SymbolManager:
         self.debug = debug
         if self.debug:
             self.plotter = Plotter(features)
-
+        # drop all non-iex symbols
         supported_symbols = set([sym.encode("utf-8") for sym in web.get_iex_symbols()['symbol'].values])
         self.symbols = list(set(symbols) & supported_symbols)
         assert len(symbols) > 0, 'none of the given symbols are supported by IEX'
@@ -24,6 +24,7 @@ class SymbolManager:
         self.futurestep = futurestep
         self.features = features
         self.symbols_data = self.__build_windows()
+        # concat x and y samples for all symbols
         self.x = self.__vectorize(self.symbols_data, 'x')
         self.y = self.__vectorize(self.symbols_data, 'y')
 
