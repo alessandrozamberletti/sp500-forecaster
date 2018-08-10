@@ -5,7 +5,6 @@ from keras.layers import Dense, Flatten, Conv2D
 from keras.callbacks import EarlyStopping
 from keras.optimizers import SGD
 import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
 import matplotlib.patches as mpatches
 
 
@@ -83,35 +82,26 @@ def save_predictions(symbols_data, timestep, futurestep, y_actual):
     for symbol, data in symbols_data.items():
         plt.cla()
 
-        chart = data['ohlcv']['close'].values[timestep:]
+        # no data before timestep and after -futurestep
+        chart = data['ohlcv']['close'].values[timestep:-futurestep]
         plt.plot(chart, color='black')
 
-        current_avg = np.average(data['current'][:, -futurestep:, -1], axis=1)
-        plt.plot(current_avg, color='pink')
-
-        future_avg = np.average(data['future'][:, :, -1], axis=1)
-        plt.plot(future_avg, color='cyan')
-
+        # gt vs predicted
         y_expected = data['y']
-        for idx, (y, cur, fut, pred, gt) in enumerate(zip(chart, current_avg, future_avg, y_actual, y_expected)):
+        for idx, (pred, gt) in enumerate(zip(y_actual, y_expected)):
             if pred != gt:
-                plt.axvspan(idx, idx+1, facecolor='blue', alpha=.5)
+                plt.axvspan(idx, idx+1, fc='gray')
                 continue
-            if pred:
-                plt.axvspan(idx, idx+1, facecolor='green', alpha=.5)
-            else:
-                plt.axvspan(idx, idx+1, facecolor='red', alpha=.5)
+            plt.axvspan(idx, idx+1, fc='green', alpha=.5) if pred else plt.axvspan(idx, idx+1, fc='red', alpha=.5)
 
         plt.title('Predictions vs Ground Truth - SYMBOL:{}'.format(symbol))
-        plt.ylabel('price')
+        plt.ylabel('close price')
         plt.xlabel('days')
 
-        legend = [mpatches.Patch(color='green', label='gt == pred == positive outlook'),
-                  mpatches.Patch(color='red', label='gt == pred == negative outlook'),
-                  mpatches.Patch(color='blue', label='gt != pred, wrong outlook'),
-                  Line2D([], [], color='pink', label='past {} days avg. price'.format(futurestep)),
-                  Line2D([], [], color='cyan', label='future {} days avg. price'.format(futurestep))]
+        legend = [mpatches.Patch(label='positive outlook (gt == pred)', color='green', alpha=.5),
+                  mpatches.Patch(label='negative outlook (gt == pred)', color='red', alpha=.5),
+                  mpatches.Patch(label='wrong outlook (gt != pred)', color='gray', alpha=.5)]
 
         plt.legend(handles=legend)
 
-        plt.savefig('out/{}.png'.format(symbol), bbox_inches='tight')
+        plt.savefig('out/{}.png'.format(symbol), dpi=300, bbox_inches='tight')
