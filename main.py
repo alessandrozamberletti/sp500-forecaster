@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from symbol_manager import SymbolManager
-import random
+from sp500 import SP500
 import utils
 
 timestep = 144
@@ -10,9 +10,7 @@ features = ['high', 'low', 'close']
 
 # RETRIEVE SYMBOLS
 print('* Retrieving S&P500 data..')
-sp500_symbols = utils.sp500_symbols()
-sp500_symbols = random.sample(sp500_symbols, 3)
-train_symbols, test_symbols = utils.split(sp500_symbols, .8)
+train_symbols, test_symbols = SP500(limit=10).split(.8)
 assert len(train_symbols) > 0 and len(test_symbols) > 0, 'no valid symbols found'
 print('** {} train symbols - {} test symbols'.format(len(train_symbols), len(test_symbols)))
 

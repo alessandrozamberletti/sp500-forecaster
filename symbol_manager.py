@@ -30,6 +30,7 @@ class SymbolManager:
 
     def __build_windows(self):
         symbols_data = {}
+        expected_shape = (sqrt(self.timestep), sqrt(self.timestep), len(self.features))
         # NOTE: data spans back to a maximum of 5 years
         start = datetime.now() - timedelta(days=2000)
         for symbol in tqdm(self.symbols, total=len(self.symbols)):
@@ -38,8 +39,7 @@ class SymbolManager:
             try:
                 ohlcv = web.DataReader(symbol, data_source='iex', start=start)
             except Exception:
-                # remove failed symbol from symbol list
-                self.symbols.remove(symbol)
+                self.__skip(symbol, 'no data for SYMBOL:{}, skipping')
                 continue
 
             # select feature columns
@@ -47,11 +47,12 @@ class SymbolManager:
 
             # drop NaNs
             data = data[~np.isnan(data).any(axis=1)]
-            if ohlcv.shape[0] == 0:
-                print('no data for {}, skipping'.format(symbol))
-                continue
 
             current, future, x, y = self.__build_time_windows(symbol, data)
+
+            if x.shape[0] == 0 or x.shape[1:] != expected_shape:
+                self.__skip(symbol, 'wrong data for SYMBOL:{}, skipping')
+                continue
 
             symbols_data[symbol] = {'ohlcv': ohlcv,
                                     'current': current,
@@ -110,6 +111,10 @@ class SymbolManager:
         self.y = np.delete(self.y, true_y_idx[false_y_count:])
 
         return self
+
+    def __skip(self, symbol, message):
+        print(message.format(symbol))
+        self.symbols.remove(symbol)
 
     @staticmethod
     def __vectorize(data, key):

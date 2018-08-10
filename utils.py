@@ -1,4 +1,3 @@
-from datapackage import Package
 from keras.models import Sequential
 from keras.layers import Dense, Flatten, Conv2D
 from keras.callbacks import EarlyStopping
@@ -7,21 +6,6 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import random
 import numpy as np
-
-
-def sp500_symbols():
-    sp500 = []
-    package = Package('https://datahub.io/core/s-and-p-500-companies/datapackage.json')
-    for resource in package.resources:
-        if resource.descriptor['datahub']['type'] == 'derived/csv':
-            sp500 = [s[0].encode('utf-8') for s in resource.read()]
-
-    return sp500
-
-
-def split(data, ratio):
-    split_idx = int(len(data) * ratio)
-    return data[:split_idx], data[split_idx:]
 
 
 def build_and_train_cnn(data):
