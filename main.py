@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import numpy as np
-from math import sqrt
 from symbol_manager import SymbolManager
 import random
 import utils
@@ -20,35 +18,24 @@ print('** {} train symbols - {} test symbols'.format(len(train_symbols), len(tes
 
 # BUILD TIME WINDOWS
 print('* Computing time windows..')
-symbol_manager = SymbolManager(features, debug=debug)
-xy_train = symbol_manager.build_windows(train_symbols, timestep, futurestep)
-assert len(xy_train) > 0, 'insufficient number of samples'
-
-# BALANCE DATASET
-print('* Balancing data..')
-X_train, y_train = utils.balance(utils.vectorize(xy_train, 'x'), utils.vectorize(xy_train, 'y'))
-assert len(X_train) > 0, 'insufficient number of samples'
-print('** {} ↓time windows - {} ↑time windows'.format(len(np.where(y_train == 0)[0]), len(np.where(y_train)[0])))
+train_data = SymbolManager(train_symbols, features, timestep, futurestep, debug=debug).balance()
+assert len(train_data.x) == len(train_data.y) and len(train_data.x) > 0, 'insufficient number of samples'
+print('** {} ↓time windows - {} ↑time windows'.format(utils.count_neg(train_data.y), utils.count_pos(train_data.y)))
 
 # TRAIN MODEL
 print('* Training model..')
-ssize = int(sqrt(timestep))
-input_shape = (ssize, ssize, len(features))
-print('** timestep: {} - futurestep: {} - model input shape: {}'.format(timestep, futurestep, input_shape))
-
-model, hist = utils.cnn(X_train, y_train, input_shape)
+print('** timestep: {} - futurestep: {}'.format(timestep, futurestep))
+model, hist = utils.build_and_train_cnn(train_data)
 utils.plot_loss(hist)
 
 # EVALUATE MODEL
 print('* Evaluating model..')
-xy_test = symbol_manager.build_windows(test_symbols, timestep, futurestep)
-X_test = utils.vectorize(xy_test, 'x')
-y_test = utils.vectorize(xy_test, 'y')
-print('** {} ↓time windows - {} ↑time windows'.format(len(np.where(y_test == 0)[0]), len(np.where(y_test)[0])))
+test_data = SymbolManager(test_symbols, features, timestep, futurestep, debug=debug)
+print('** {} ↓time windows - {} ↑time windows'.format(utils.count_neg(test_data.y), utils.count_pos(test_data.y)))
 
-test_results = model.evaluate(X_test, y_test)
+test_results = model.evaluate(test_data.x, test_data.y)
 print('** test loss: {} - test accuracy: {}'.format(test_results[0], test_results[1]))
 
 print('* Saving results to /out for {} test symbols'.format(len(test_symbols)))
-preds = model.predict_classes(X_test)
-utils.save_predictions(xy_test, timestep, futurestep, preds)
+preds = model.predict_classes(test_data.x)
+utils.save_predictions(test_data, preds)

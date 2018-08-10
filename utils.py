@@ -1,11 +1,12 @@
 from datapackage import Package
-import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense, Flatten, Conv2D
 from keras.callbacks import EarlyStopping
 from keras.optimizers import SGD
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+import random
+import numpy as np
 
 
 def sp500_symbols():
@@ -18,27 +19,15 @@ def sp500_symbols():
     return sp500
 
 
-def vectorize(symbols_data, key):
-    return np.concatenate([data[key] for _, data in symbols_data.items()])
-
-
 def split(data, ratio):
     split_idx = int(len(data) * ratio)
     return data[:split_idx], data[split_idx:]
 
 
-def balance(x, y):
-    false_y_count = len(y) - np.count_nonzero(np.array(y))
-    true_y_idx, = np.where(y)
+def build_and_train_cnn(data):
+    # get first train patch from random symbol
+    input_shape = data.symbols_data[random.choice(data.symbols_data.keys())]['x'][0, :, :, :].shape
 
-    np.random.shuffle(true_y_idx)
-    x = np.delete(x, true_y_idx[false_y_count:], axis=0)
-    y = np.delete(y, true_y_idx[false_y_count:])
-
-    return x, y
-
-
-def cnn(x, y, input_shape):
     model = Sequential()
     model.add(Conv2D(8, (2, 2), input_shape=input_shape))
     model.add(Conv2D(12, (2, 2)))
@@ -57,7 +46,7 @@ def cnn(x, y, input_shape):
     model.compile(loss='binary_crossentropy', optimizer=opt, metrics=['accuracy'])
     es = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1, mode='auto')
 
-    hist = model.fit(x, y, shuffle=True, epochs=1, validation_split=0.2, callbacks=[es])
+    hist = model.fit(data.x, data.y, shuffle=True, epochs=1, validation_split=0.2, callbacks=[es])
 
     return model, hist
 
@@ -78,17 +67,17 @@ def plot_loss(data):
     plt.pause(0.0001)
 
 
-def save_predictions(symbols_data, timestep, futurestep, y_actual):
-    for symbol, data in symbols_data.items():
+def save_predictions(test_data, predictions):
+    for symbol, data in test_data.symbols_data.items():
         plt.cla()
 
         # no data before timestep and after -futurestep
-        chart = data['ohlcv']['close'].values[timestep:-futurestep]
+        chart = data['ohlcv']['close'].values[test_data.timestep:-test_data.futurestep]
         plt.plot(chart, color='black')
 
         # gt vs predicted
         y_expected = data['y']
-        for idx, (pred, gt) in enumerate(zip(y_actual, y_expected)):
+        for idx, (pred, gt) in enumerate(zip(predictions, y_expected)):
             if pred != gt:
                 plt.axvspan(idx, idx+1, fc='gray')
                 continue
@@ -105,3 +94,11 @@ def save_predictions(symbols_data, timestep, futurestep, y_actual):
         plt.legend(handles=legend)
 
         plt.savefig('out/{}.png'.format(symbol), dpi=300, bbox_inches='tight')
+
+
+def count_pos(windows):
+    len(np.where(windows)[0])
+
+
+def count_neg(windows):
+    len(np.where(windows)[0] == 0)
