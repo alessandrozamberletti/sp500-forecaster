@@ -97,8 +97,8 @@ def save_predictions(test_data, predictions):
 
 
 def count_pos(windows):
-    len(np.where(windows)[0])
+    return len(np.where(windows)[0])
 
 
 def count_neg(windows):
-    len(np.where(windows)[0] == 0)
+    return len(np.where(windows)[0] == 0)
