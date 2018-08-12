@@ -7,11 +7,14 @@ higher or lower than the last 30 days average close price.
 * Instead of using RNN/LSTM, we transform 144 days of hlc data to a (12,12,3) image and feed it to a CNN.
 * From stock data to image:
 ![create-samples](./res/create-samples.gif)
+
+* WIP WIP WIP
 * model train
 * img -> accuracy
 * model eval
 * img -> gt vs pred
 
+## Dependencies
 * tested on ubuntu 16.04, python 2.7
 ```
 pip install -r requirements.txt
