@@ -1,4 +1,4 @@
-# Keras-Bittrex
+# stock2image
 
 For any stock, given hlc data from the past 144 days, predict if the average closing price in the next 30 days will be
 higher or lower than today's closing price.
