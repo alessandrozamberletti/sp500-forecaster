@@ -14,7 +14,7 @@ class SymbolManager:
         # plot training patches creation pipeline
         self.debug = debug
         if self.debug:
-            self.plotter = Plotter(features)
+            self.plotter = Plotter(features, futurestep)
         # drop all non-iex symbols
         supported_symbols = set([sym.encode("utf-8") for sym in web.get_iex_symbols()['symbol'].values])
         self.symbols = list(set(symbols) & supported_symbols)
