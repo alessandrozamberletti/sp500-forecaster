@@ -5,8 +5,7 @@ higher or lower than the last 30 days average close price.
 
 ## Pipeline
 * Instead of using rnn/lstm, we transform 144 days of hlc data to a (12,12,3) image and feed it to a cnn.
-* stock2image
-* img -> train samples pipeline
+![create-samples](./res/create-samples.gif)
 * model train
 * img -> accuracy
 * model eval
