@@ -5,7 +5,7 @@ import utils
 
 timestep = 144
 futurestep = 30
-debug = False
+debug = True
 features = ['high', 'low', 'close']
 
 # RETRIEVE SYMBOLS
