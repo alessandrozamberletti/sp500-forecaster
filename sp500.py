@@ -1,4 +1,5 @@
 from datapackage import Package
+import random
 
 
 class SP500:
@@ -10,7 +11,7 @@ class SP500:
             if resource.descriptor['datahub']['type'] == 'derived/csv':
                 self.sp500 = [s[0].encode('utf-8') for s in resource.read()]
         if limit != 0:
-            self.sp500 = self.sp500[:limit]
+            self.sp500 = random.sample(self.sp500, limit)
 
     def split(self, ratio):
         split_idx = int(len(self.sp500) * ratio)
