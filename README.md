@@ -1,12 +1,11 @@
 # stock2image
-
-* For any stock, given hlc data from the past 144 days, predict if the average close price in the next 30 days will be
-higher or lower than the last 30 days average close price. 
+* __task:__ predict if the avg close price in the next 30 days will be higher/lower than the last 30 days avg close price;
+* __input:__ high/low/close (hlc) data from the past 144 days. 
 
 ## Pipeline
-* Instead of using RNN/LSTM, we transform 144 days of hlc data to a (12,12,3) image and feed it to a CNN.
-* From stock data to image:
-![create-samples](./res/create-samples.gif)
+1. transform 144 days of normalized hlc data to a (12,12,3) image and feed it to a CNN.
+
+   ![create-samples](./res/create-samples.gif)
 
 * WIP WIP WIP
 * model train
