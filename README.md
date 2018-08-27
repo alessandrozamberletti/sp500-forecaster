@@ -1,18 +1,19 @@
 # stock2image
-* __task:__ predict if the avg close price in the next 30 days will be higher/lower than the last 30 days avg close price;
-* __input:__ high/low/close (hlc) data from the past 144 days. 
+* __task:__ predict if the avg close price in the next 30 days will be higher/lower than the last 30 days avg close price
+* __input:__ high/low/close (HLC) data from the past 144 days
 
 ## Pipeline
-1. gather S&P 500 hlc data
-2. transform 144 days of normalized hlc data to (12,12,3) images
+1. gather S&P 500 HLC data and random split into train/test:
+```console
+* Retrieving S&P500 data..
+** 404 train symbols - 101 test symbols
+```
 
-   ![create-samples](./res/create-samples.gif)
+2. transform normalized HLC train data to (12,12,3) images:
+<img src="./res/create-samples.gif" width="500" height="375" />
 
-3. train CNN on train data from (2)
+3. train CNN:
 
-* img -> accuracy
-
-* WIP WIP WIP
 * model eval
 * img -> gt vs pred
 
