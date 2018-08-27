@@ -3,15 +3,16 @@
 * __input:__ high/low/close (hlc) data from the past 144 days. 
 
 ## Pipeline
-1. gather S&P 500 hlc data
-2. transform 144 days of normalized hlc data to a (12,12,3) image and feed it to a CNN.
+1. gather S&P 500 hlc data;
+2. transform 144 days of normalized hlc data to (12,12,3) images;
 
    ![create-samples](./res/create-samples.gif)
 
-3. train CNN on train data from (2)
+3. train CNN on train data from (2);
+
+* img -> accuracy
 
 * WIP WIP WIP
-* img -> accuracy
 * model eval
 * img -> gt vs pred
 
