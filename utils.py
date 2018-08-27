@@ -15,9 +15,9 @@ def build_and_train_cnn(data, epochs=100):
     model = Sequential()
     model.add(Conv2D(64, (2, 2), input_shape=input_shape))
     model.add(Conv2D(128, (2, 2)))
-    model.add(Dropout(.2))
+    model.add(Dropout(.1))
     model.add(Conv2D(128, (2, 2)))
-    model.add(Dropout(.2))
+    model.add(Dropout(.1))
     model.add(Flatten())
     model.add(Dense(256))
     model.add(Dense(units=1, activation='sigmoid'))
@@ -31,10 +31,7 @@ def build_and_train_cnn(data, epochs=100):
     return model, hist
 
 
-def plot_loss(data):
-    plt.figure()
-    plt.ion()
-
+def save_loss(data):
     plt.plot(data.history['loss'], label='train')
     plt.plot(data.history['val_loss'], label='validation')
 
@@ -43,8 +40,7 @@ def plot_loss(data):
     plt.xlabel('epoch')
     plt.legend()
 
-    plt.show()
-    plt.pause(0.0001)
+    save_img('out/loss.png')
 
 
 def save_predictions(test_data, predictions):
@@ -73,7 +69,11 @@ def save_predictions(test_data, predictions):
 
         plt.legend(handles=legend)
 
-        plt.savefig('out/{}.png'.format(symbol), dpi=300, bbox_inches='tight')
+        save_img('out/{}.png'.format(symbol))
+
+
+def save_img(name):
+    plt.savefig(name, dpi=300, bbox_inches='tight')
 
 
 def count_pos(windows):

@@ -10,7 +10,7 @@ features = ['high', 'low', 'close']
 
 # RETRIEVE SYMBOLS
 print('* Retrieving S&P500 data..')
-train_symbols, test_symbols = SP500(limit=10).split(.8)
+train_symbols, test_symbols = SP500(limit=25).split(.8)
 assert len(train_symbols) > 0 and len(test_symbols) > 0, 'no valid symbols found'
 print('** {} train symbols - {} test symbols'.format(len(train_symbols), len(test_symbols)))
 
@@ -23,8 +23,8 @@ print('** {} ↓time windows - {} ↑time windows'.format(utils.count_neg(train_
 # TRAIN MODEL
 print('* Training model..')
 print('** timestep: {} - futurestep: {}'.format(timestep, futurestep))
-model, hist = utils.build_and_train_cnn(train_data, epochs=100)
-utils.plot_loss(hist)
+model, hist = utils.build_and_train_cnn(train_data, epochs=10)
+utils.save_loss(hist)
 
 # EVALUATE MODEL
 print('* Evaluating model..')
