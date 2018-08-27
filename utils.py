@@ -8,7 +8,7 @@ import random
 import numpy as np
 
 
-def build_and_train_cnn(data):
+def build_and_train_cnn(data, epochs=100):
     # get first train patch from random symbol
     input_shape = data.symbols_data[random.choice(data.symbols_data.keys())]['x'][0, :, :, :].shape
 
@@ -30,7 +30,7 @@ def build_and_train_cnn(data):
     model.compile(loss='binary_crossentropy', optimizer=opt, metrics=['accuracy'])
     es = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1, mode='auto')
 
-    hist = model.fit(data.x, data.y, shuffle=True, epochs=1, validation_split=0.2, callbacks=[es])
+    hist = model.fit(data.x, data.y, shuffle=True, epochs=epochs, validation_split=0.2, callbacks=[es])
 
     return model, hist
 

@@ -5,7 +5,7 @@ import utils
 
 timestep = 144
 futurestep = 30
-debug = True
+debug = False
 features = ['high', 'low', 'close']
 
 # RETRIEVE SYMBOLS
@@ -23,7 +23,7 @@ print('** {} ↓time windows - {} ↑time windows'.format(utils.count_neg(train_
 # TRAIN MODEL
 print('* Training model..')
 print('** timestep: {} - futurestep: {}'.format(timestep, futurestep))
-model, hist = utils.build_and_train_cnn(train_data)
+model, hist = utils.build_and_train_cnn(train_data, epochs=10)
 utils.plot_loss(hist)
 
 # EVALUATE MODEL
