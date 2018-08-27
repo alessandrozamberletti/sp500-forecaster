@@ -8,8 +8,9 @@
 
    ![create-samples](./res/create-samples.gif)
 
+3. train CNN on train data from (2)
+
 * WIP WIP WIP
-* model train
 * img -> accuracy
 * model eval
 * img -> gt vs pred
