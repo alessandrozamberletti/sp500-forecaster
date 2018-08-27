@@ -23,7 +23,7 @@ print('** {} ↓time windows - {} ↑time windows'.format(utils.count_neg(train_
 # TRAIN MODEL
 print('* Training model..')
 print('** timestep: {} - futurestep: {}'.format(timestep, futurestep))
-model, hist = utils.build_and_train_cnn(train_data, epochs=10)
+model, hist = utils.build_and_train_cnn(train_data, epochs=100)
 utils.plot_loss(hist)
 
 # EVALUATE MODEL

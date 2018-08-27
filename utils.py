@@ -1,5 +1,5 @@
 from keras.models import Sequential
-from keras.layers import Dense, Flatten, Conv2D
+from keras.layers import Dense, Flatten, Conv2D, Dropout
 from keras.callbacks import EarlyStopping
 from keras.optimizers import SGD
 import matplotlib.pyplot as plt
@@ -13,17 +13,13 @@ def build_and_train_cnn(data, epochs=100):
     input_shape = data.symbols_data[random.choice(data.symbols_data.keys())]['x'][0, :, :, :].shape
 
     model = Sequential()
-    model.add(Conv2D(8, (2, 2), input_shape=input_shape))
-    model.add(Conv2D(12, (2, 2)))
-    model.add(Conv2D(16, (2, 2)))
-    model.add(Conv2D(20, (2, 2)))
-    model.add(Conv2D(24, (2, 2)))
-    model.add(Conv2D(28, (2, 2)))
-    model.add(Conv2D(32, (2, 2)))
-    model.add(Conv2D(36, (2, 2)))
-    model.add(Conv2D(40, (2, 2)))
+    model.add(Conv2D(64, (2, 2), input_shape=input_shape))
+    model.add(Conv2D(128, (2, 2)))
+    model.add(Dropout(.2))
+    model.add(Conv2D(128, (2, 2)))
+    model.add(Dropout(.2))
     model.add(Flatten())
-    model.add(Dense(32))
+    model.add(Dense(256))
     model.add(Dense(units=1, activation='sigmoid'))
 
     opt = SGD(lr=0.001, decay=1e-6, momentum=0.9, nesterov=False)
