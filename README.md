@@ -3,20 +3,35 @@
 * __input:__ high/low/close (HLC) data from the past 144 days
 
 ## Pipeline
-1. gather S&P500 HLC data and random split into train/test:
+<details><summary>1. gather S&P500 HLC data and random split into train/test</summary>
+<p>
+  
 ```console
 * Retrieving S&P500 data..
 ** 404 train symbols - 101 test symbols
 ```
 
-2. transform normalized HLC train data into (12,12,3) images:
+</p>
+</details>
+
+<details><summary>2. transform normalized HLC train data into (12,12,3) images</summary>
+<p>
+  
 <img src="./res/create-samples.gif" width="500" height="375" />
 
-3. train model:
+</p>
+</details>
+
+<details><summary>3. train model</summary>
+<p>
+  
 <img src="./res/train.gif" width="500" height="375" />
 
+</p>
+</details>
+
 4. evaluate model:
-* img -> gt vs pred
+* WIP: img -> gt vs pred
 
 ## Dependencies
 * tested on ubuntu 16.04, python 2.7
