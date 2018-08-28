@@ -30,8 +30,13 @@
 </p>
 </details>
 
-4. evaluate model:
+<details><summary>4. evaluate model</summary>
+<p>
+  
 * WIP: img -> gt vs pred
+
+</p>
+</details>
 
 ## Dependencies
 * tested on ubuntu 16.04, python 2.7
