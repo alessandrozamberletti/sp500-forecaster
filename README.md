@@ -17,7 +17,7 @@
 <details><summary>2. transform normalized HLC train data into (12,12,3) images</summary>
 <p>
   
-<img src="./res/create-samples.gif" width="500" height="375" />
+<img src="./res/create.gif" width="500" height="375" />
 
 </p>
 </details>
@@ -33,7 +33,7 @@
 <details><summary>4. evaluate model</summary>
 <p>
   
-* WIP: img -> gt vs pred
+<img src="./res/evaluate.gif" width="500" height="375" />
 
 </p>
 </details>
