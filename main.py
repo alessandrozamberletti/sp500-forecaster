@@ -12,7 +12,7 @@ features = ['high', 'low', 'close']
 out_dir = 'out'
 
 parser = ArgumentParser(description='Predict future stock trend.')
-parser.add_argument('--stocknum', default=100, type=int, help='number of sp500 stocks to retrieve (default 100)')
+parser.add_argument('--stocknum', default=0, type=int, help='number of sp500 stocks to retrieve (default max)')
 parser.add_argument('--debug', action='store_true', default=False, help='show visual information')
 args = parser.parse_args()
 if not os.path.exists(out_dir):
