@@ -13,8 +13,10 @@ out_dir = 'out'
 
 parser = ArgumentParser(description='Predict future stock trend.')
 parser.add_argument('--stocknum', default=0, type=int, help='number of sp500 stocks to retrieve (default max)')
+parser.add_argument('--epochs', default=10, type=int, help='number of training epochs (default 10)')
 parser.add_argument('--debug', action='store_true', default=False, help='show visual information')
 args = parser.parse_args()
+
 if not os.path.exists(out_dir):
     os.makedirs(out_dir)
 
@@ -33,7 +35,7 @@ print('** {} ↓time windows - {} ↑time windows'.format(utils.count_neg(train_
 # TRAIN MODEL
 print('* Training model..')
 print('** timestep: {} - futurestep: {}'.format(timestep, futurestep))
-model, hist = utils.build_and_train_cnn(train_data, epochs=10)
+model, hist = utils.build_and_train_cnn(train_data, epochs=args.stocknum)
 if args.debug:
     print('* Saving loss plot to {}'.format(out_dir))
     utils.save_loss(hist)
