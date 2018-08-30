@@ -12,6 +12,7 @@ features = ['high', 'low', 'close']
 out_dir = 'out'
 
 parser = ArgumentParser(description='Predict future stock trend.')
+parser.add_argument('--stocknum', default=100, type=int, help='number of sp500 stocks to retrieve (default 100)')
 parser.add_argument('--debug', action='store_true', default=False, help='show visual information')
 args = parser.parse_args()
 if not os.path.exists(out_dir):
@@ -19,7 +20,7 @@ if not os.path.exists(out_dir):
 
 # RETRIEVE SYMBOLS
 print('* Retrieving S&P500 data..')
-train_symbols, test_symbols = SP500(limit=25).split(.8)
+train_symbols, test_symbols = SP500(limit=args.stocknum).split(.8)
 assert len(train_symbols) > 0 and len(test_symbols) > 0, 'no valid symbols found'
 print('** {} train symbols - {} test symbols'.format(len(train_symbols), len(test_symbols)))
 
