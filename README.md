@@ -8,7 +8,7 @@ usage: main.py [-h] [-d] stocknum epochs
 Predict future stock trend.
 
 positional arguments:
-  stocknum     number of sp500 stocks to retrieve
+  stocknum     number of sp500 stocks to retrieve (0=all)
   epochs       number of training epochs
 
 optional arguments:
