@@ -52,8 +52,11 @@ optional arguments:
 </p>
 </details>
 
-## Dependencies
-* tested on ubuntu 16.04, python 2.7
-```
-pip install -r requirements.txt
+## Requirements
+```console
+az@ubuntu:~/stock2image$ cat /etc/issue*
+Ubuntu 16.04.4 LTS
+az@ubuntu:~/stock2image$ python --version
+Python 2.7.12
+az@ubuntu:~/stock2image$ pip install -r requirements.txt
 ```
