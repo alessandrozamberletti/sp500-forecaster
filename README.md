@@ -59,4 +59,5 @@ Ubuntu 16.04.4 LTS
 az@ubuntu:~/stock2image$ python --version
 Python 2.7.12
 az@ubuntu:~/stock2image$ pip install -r requirements.txt
+...
 ```
