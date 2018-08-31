@@ -12,7 +12,7 @@ features = ['high', 'low', 'close']
 out_dir = 'out'
 
 parser = ArgumentParser(description='Predict future stock trend.')
-parser.add_argument('stocknum', type=int, help='number of sp500 stocks to retrieve')
+parser.add_argument('stocknum', type=int, help='number of sp500 stocks to retrieve (0=all)')
 parser.add_argument('epochs', type=int, help='number of training epochs')
 parser.add_argument('-d', '--debug', action='store_true', default=False, help='show visual information')
 args = parser.parse_args()
