@@ -4,6 +4,7 @@ from sp500 import SP500
 import utils
 from argparse import ArgumentParser
 import os
+import logging
 
 TIMESTEP = 144
 FUTURESTEP = 30
@@ -48,10 +49,14 @@ def main(args):
     utils.save_predictions(test_data, preds)
 
 
-if __name__ == '__main__':
+def read_args():
     parser = ArgumentParser(description='Predict future stock trend.')
     parser.add_argument('stocknum', type=int, help='number of sp500 stocks to retrieve (0=all)')
     parser.add_argument('epochs', type=int, help='number of training epochs')
     parser.add_argument('-d', '--debug', action='store_true', default=False, help='show visual information')
 
-    main(parser.parse_args())
+    return parser.parse_args()
+
+
+if __name__ == '__main__':
+    main(read_args())
