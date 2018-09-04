@@ -21,8 +21,10 @@ optional arguments:
 <p>
   
 ```console
-* Retrieving S&P500 data..
-** 404 train symbols - 101 test symbols
+Using TensorFlow backend.
+INFO:stock2image:Retrieving S&P500 data
+INFO:stock2image:404 train symbols - 101 test symbols
+INFO:stock2image:Computing time windows
 ```
 
 </p>
@@ -58,6 +60,6 @@ az@ubuntu:~/stock2image$ cat /etc/issue*
 Ubuntu 16.04.4 LTS
 az@ubuntu:~/stock2image$ python --version
 Python 2.7.12
-az@ubuntu:~/stock2image$ pip install -r requirements.txt
+az@ubuntu:~/stock2image$ pip install -r stock2image/requirements.txt
 ...
 ```
