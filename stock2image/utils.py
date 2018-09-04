@@ -1,5 +1,5 @@
 from keras.models import Sequential
-from keras.layers import Dense, Flatten, Conv2D, Dropout, MaxPooling2D, ReLU
+from keras.layers import Dense, Flatten, Conv2D, Dropout
 from keras.callbacks import EarlyStopping
 from keras.optimizers import SGD
 import matplotlib.pyplot as plt
