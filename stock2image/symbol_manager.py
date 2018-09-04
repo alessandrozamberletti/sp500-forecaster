@@ -7,7 +7,6 @@ from plotter import Plotter
 import pandas as pd
 pd.core.common.is_list_like = pd.api.types.is_list_like
 import pandas_datareader as web
-import logging
 
 
 class SymbolManager:
