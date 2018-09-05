@@ -1,0 +1,11 @@
+import sp500
+
+# ([AAPL, MSFT,..],[NFLX,..])
+sp500.retrieve(limit=x, split_ratio=y)
+#
+syms = s2i.sp500().retrieve(limit=..)
+vsym = s2i.yyy.convert(symbols=syms).balance()
+nn = model.fit(vsym.x, vsym.y)
+
+test = s2i.yyy.transform(symbols=AAPL) <- compute x win also for last ts
+model.predict(test.x)
