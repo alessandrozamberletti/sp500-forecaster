@@ -1,8 +1,8 @@
-from s2i import sp500
+from s2i import sp500, SymbolConverter
 
-# [AAPL, MSFT,..]
-syms = sp500.retrieve(limit=x)
-#
+symbols = sp500.retrieve()
+symbol_converter = SymbolConverter(symbols)
+symbol_converter.convert(timestep, futurestep, debug=False)
 vsym = s2i.yyy.convert(symbols=syms).balance()
 nn = model.fit(vsym.x, vsym.y)
 
