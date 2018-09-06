@@ -1,9 +1,8 @@
-import sp500
+from s2i import sp500
 
-# ([AAPL, MSFT,..],[NFLX,..])
-sp500.retrieve(limit=x, split_ratio=y)
+# [AAPL, MSFT,..]
+syms = sp500.retrieve(limit=x)
 #
-syms = s2i.sp500().retrieve(limit=..)
 vsym = s2i.yyy.convert(symbols=syms).balance()
 nn = model.fit(vsym.x, vsym.y)
 
