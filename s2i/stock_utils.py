@@ -38,7 +38,7 @@ def get_sp500_tickers(limit=0, ratio=0):
             tickers = [ticker[0].encode('utf-8') for ticker in resource.read()]
     if limit != 0:
         tickers = random.sample(tickers, limit)
-    return tickers if ratio == 0 or ratio == 1 else _split(tickers, ratio)
+    return tickers if (ratio == 0 or ratio == 1) else _split(tickers, ratio)
 
 
 def get_ohlcv(tickers):
