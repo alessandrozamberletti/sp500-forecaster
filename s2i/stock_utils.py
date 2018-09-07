@@ -30,6 +30,7 @@ def get_sp500_tickers(limit=0, ratio=0):
         >>>> stock_utils.get_sp500_tickers(limit=5, ratio=.6)
         (['DISCA', 'VRTX', 'WEC'], ['CFG', 'BA'])
     """
+
     assert 0 <= ratio <= 1, 'invalid split ratio, must be in [0,1]'
 
     package = Package(_DP_URL)
