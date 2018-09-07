@@ -1,6 +1,7 @@
 from datapackage import Package
 import random
 from datetime import datetime, timedelta
+import warnings
 import pandas as pd
 pd.core.common.is_list_like = pd.api.types.is_list_like
 import pandas_datareader as web
@@ -39,6 +40,7 @@ def get_sp500_tickers(limit=0, ratio=0):
             tickers = [ticker[0].encode('utf-8') for ticker in resource.read()]
     if limit != 0:
         tickers = random.sample(tickers, limit)
+
     return tickers if (ratio == 0 or ratio == 1) else _split(tickers, ratio)
 
 
@@ -73,7 +75,7 @@ def get_ohlcv(tickers):
             ohlcv = web.DataReader(ticker, data_source='iex', start=start)
         except Exception:
             # ignore failed calls
-            print('no data for TICKER:{}, skipping'.format(ticker))
+            warnings.warn('no data for TICKER:{}, skipping'.format(ticker), Warning)
             continue
 
         stock_data[ticker] = ohlcv
