@@ -1,8 +1,7 @@
-from s2i import sp500, SymbolConverter
+from s2i import stock_utils
 
-symbols = sp500.retrieve()
-symbol_converter = SymbolConverter(symbols)
-symbol_converter.convert(timestep, futurestep, debug=False)
+sp500_tickers = stock_helper.get_sp500_tickers(limit=, ratio=)
+symbol_converter = SymbolConverter.convert(symbols, timestep, futurestep, debug=False)
 vsym = s2i.yyy.convert(symbols=syms).balance()
 nn = model.fit(vsym.x, vsym.y)
 
