@@ -31,16 +31,13 @@ def get_sp500_tickers(limit=0, ratio=0):
         >>>> stock_utils.get_sp500_tickers(limit=5, ratio=.6)
         (['DISCA', 'VRTX', 'WEC'], ['CFG', 'BA'])
     """
-
     assert 0 <= ratio <= 1, 'invalid split ratio, must be in [0,1]'
-
     package = Package(_DP_URL)
     for resource in package.resources:
         if resource.descriptor['datahub']['type'] == 'derived/csv':
             tickers = [ticker[0].encode('utf-8') for ticker in resource.read()]
     if limit != 0:
         tickers = random.sample(tickers, limit)
-
     return tickers if (ratio == 0 or ratio == 1) else _split(tickers, ratio)
 
 
@@ -60,11 +57,9 @@ def get_ohlcv(tickers):
         >>> [(k,v.columns.tolist()) for k, v in stock_utils.get_ohlcv(['NFLX']).iteritems()]
         [('NFLX', [u'open', u'high', u'low', u'close', u'volume'])]
     """
-
     # cannot retrieve data for tickers unsupported by IEX
     tickers = _drop_unsupported_tickers(tickers)
     assert len(tickers) > 0, 'none of the given tickers are supported by IEX stock exchange'
-
     # see: https://pandas-datareader.readthedocs.io/en/latest/remote_data.html#remote-data-iex
     start = datetime.now() - timedelta(days=2000)
     stock_data = {}
@@ -77,9 +72,7 @@ def get_ohlcv(tickers):
             # ignore failed calls
             warnings.warn('no data for TICKER:{}, skipping'.format(ticker), Warning)
             continue
-
         stock_data[ticker] = ohlcv
-
     return stock_data
 
 
@@ -91,4 +84,3 @@ def _split(tickers, ratio):
 def _drop_unsupported_tickers(tickers):
     supported_tickers = set([ticker.encode("utf-8") for ticker in web.get_iex_tickers()['ticker'].values])
     return list(set(tickers) & supported_tickers)
-
