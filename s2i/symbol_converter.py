@@ -13,14 +13,11 @@ class SymbolConverter:
     """Converts stock symbols into images and tags them as future uptrend/downtrend/unknown."""
 
     def __init__(self, symbols):
-        self.supported_symbols = set([symbol.encode("utf-8") for symbol in web.get_iex_symbols()['symbol'].values])
-        self.symbols = list(set(symbols) & self.supported_symbols)
+        supported_symbols = set([symbol.encode("utf-8") for symbol in web.get_iex_symbols()['symbol'].values])
+        self.symbols = list(set(symbols) & supported_symbols)
         assert len(symbols) > 0, 'none of the given symbols are supported by IEX (Investors Exchange) stock exchange'
 
     def convert(self, timestep, futurestep, debug=False):
-        pass
-
-    def __build_windows(self):
         symbols_data = {}
         expected_shape = (sqrt(self.timestep), sqrt(self.timestep), len(self.features))
         # NOTE: data spans back to a maximum of 5 years
