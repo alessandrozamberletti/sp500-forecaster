@@ -13,13 +13,13 @@ class StockDataTransformer:
         if debug:
             self.plotter = Plotter(self.features, self.futurestep)
 
-    def __build_windows(self, ticker, ohlcv, balance=False):
+    def split_time_windows(self, ticker, ohlcv, balance=False):
         # select feature columns
         data = ohlcv[self.features].values
-
         # drop NaNs
         data = data[~np.isnan(data).any(axis=1)]
-        current, future, x, y = self.__build_time_windows(ticker, data)
+
+        x, y = self.__build_time_windows(ticker, data)
 
         if x.shape[0] == 0 or x.shape[1:] != self.time_window_shape:
             raise ValueError('wrong data shape: expected {}, found {}'.format(self.time_window_shape, x.shape))
@@ -40,18 +40,13 @@ class StockDataTransformer:
             trend = future_avg_price > current_avg_price
 
             # price at position n = (price at position n) / (price at position 0)
-            p0 = current[0, :]
-            norm_current = self.__scale(p0, current)
+            norm_current = self.__scale(current[0, :], current)
 
             # normalize between 0 and 1
             norm_current = scaler.fit_transform(norm_current)
 
-            # transform stock data to image
-            hw = int(sqrt(self.timestep))
-            sample_shape = (hw, hw, len(self.features))
-
             # append to output data
-            x.append(norm_current.reshape(sample_shape))
+            x.append(norm_current.reshape(self.time_window_shape))
             y.append(trend)
 
             if self.debug:
@@ -74,5 +69,5 @@ class StockDataTransformer:
         return x, y
 
     @staticmethod
-    def __scale(price, time_window):
-        return time_window/price - 1
+    def __scale(p0, tw):
+        return tw / p0 - 1
