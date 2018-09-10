@@ -22,15 +22,13 @@ class StockDataTransformer:
         current, future, x, y = self.__build_time_windows(ticker, data)
 
         if x.shape[0] == 0 or x.shape[1:] != self.time_window_shape:
-            raise ValueError('Wrong data for SYMBOL:{}, expected {} but got {}'.format(self.time_window_shape, x.shape))
+            raise ValueError('wrong data shape: expected {}, found {}'.format(self.time_window_shape, x.shape))
 
         return balance(x, y) if balance else x, y
 
     def __build_time_windows(self, symbol, data):
         x = []
         y = []
-        current_wins = []
-        future_wins = []
         scaler = MinMaxScaler(feature_range=(0, 1))
         for t in range(0, data.shape[0] - self.timestep - self.futurestep):
             current = data[t:t + self.timestep, :]
@@ -55,8 +53,6 @@ class StockDataTransformer:
             # append to output data
             x.append(norm_current.reshape(sample_shape))
             y.append(trend)
-            current_wins.append(current)
-            future_wins.append(future)
 
             if self.debug:
                 # NOTE: remember not to fit the scaler on future data
@@ -76,10 +72,6 @@ class StockDataTransformer:
         y = np.delete(y, true_y_idx[false_y_count:])
 
         return x, y
-
-    @staticmethod
-    def __vectorize(data, key):
-        return np.concatenate([data[key] for _, data in data.items()])
 
     @staticmethod
     def __scale(price, time_window):
