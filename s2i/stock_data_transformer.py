@@ -15,11 +15,10 @@ class StockDataTransformer:
 
     def split_time_windows(self, ticker, ohlcv, balance=False):
         # select feature columns
-        data = ohlcv[self.features].values
-        # drop NaNs
-        data = data[~np.isnan(data).any(axis=1)]
+        ohlcv = ohlcv[self.features].values
+        ohlcv = ohlcv[~np.isnan(ohlcv).any(axis=1)]
 
-        x, y = self.__build_time_windows(ticker, data)
+        x, y = self.__build_time_windows(ticker, ohlcv)
 
         if x.shape[0] == 0 or x.shape[1:] != self.time_window_shape:
             raise ValueError('wrong data shape: expected {}, found {}'.format(self.time_window_shape, x.shape))
@@ -40,7 +39,8 @@ class StockDataTransformer:
             trend = future_avg_price > current_avg_price
 
             # price at position n = (price at position n) / (price at position 0)
-            norm_current = self.__scale(current[0, :], current)
+            p0 = current[0, :]
+            norm_current = self.__scale(p0, current)
 
             # normalize between 0 and 1
             norm_current = scaler.fit_transform(norm_current)
