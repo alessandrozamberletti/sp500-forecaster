@@ -82,5 +82,5 @@ def _split(tickers, ratio):
 
 
 def _drop_unsupported_tickers(tickers):
-    supported_tickers = set([ticker.encode("utf-8") for ticker in web.get_iex_tickers()['ticker'].values])
+    supported_tickers = set([ticker.encode("utf-8") for ticker in web.get_iex_symbols()['symbol'].values])
     return list(set(tickers) & supported_tickers)

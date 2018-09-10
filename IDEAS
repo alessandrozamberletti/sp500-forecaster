@@ -1,9 +1,8 @@
 from s2i import stock_utils
 
-sp500_tickers = stock_helper.get_sp500_tickers(limit=, ratio=)
-symbol_converter = SymbolConverter.convert(symbols, timestep, futurestep, debug=False)
-vsym = s2i.yyy.convert(symbols=syms).balance()
-nn = model.fit(vsym.x, vsym.y)
-
-test = s2i.yyy.transform(symbols=AAPL) <- compute x win also for last ts
-model.predict(test.x)
+tickers = stock_utils.get_sp500_tickers(limit=, ratio=)
+tickers_ohlcv_dict = stock_utils.get_ohlcv(ticker)
+transformer = StockDataTransformer(features, timestep, futurestep)
+for ticker in tickers_ohlcv_dict:
+    ticker_data = tickers_data.get(ticker)
+    x, y = transformer.split_time_windows(ticker, ticker_data, balance=, debug=)
