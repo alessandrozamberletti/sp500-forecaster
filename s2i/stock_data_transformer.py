@@ -14,27 +14,28 @@ class StockDataTransformer:
         if debug:
             self.plotter = Plotter(self.features, self.futurestep)
 
-    def split_time_windows(self, ticker, ohlcv, balance=False):
-        # select feature columns
-        ohlcv = ohlcv[self.features].values
-        ohlcv = ohlcv[~np.isnan(ohlcv).any(axis=1)]
-
-        x, y = self.__build_time_windows(ticker, ohlcv)
-        if x.shape[0] == 0 or x.shape[1:] != self.time_window_shape:
-            raise ValueError('wrong data shape: expected {}, found {}'.format(self.time_window_shape, x.shape))
-
+    def get_train_windows(self, ticker, ohlcv, balance=False):
+        ohlcv = self.__select_features(ohlcv)
+        x, y = self.__build_time_windows(ticker, ohlcv, self.futurestep)
+        self.__validate_shape(x)
         return self.__balance(x, y) if balance else x, y
 
-    def __build_time_windows(self, symbol, data):
+    def get_latest_window(self, ticker, ohlcv):
+        ohlcv = self.__select_features(ohlcv)
+        x, _ = self.__build_time_windows(ticker, ohlcv, 0)
+        self.__validate_shape(x)
+        return x[-1, :]
+
+    def __build_time_windows(self, symbol, data, futurestep):
         x = []
         y = []
         scaler = MinMaxScaler(feature_range=(0, 1))
-        for t in range(0, data.shape[0] - self.timestep - self.futurestep):
+        for t in range(0, data.shape[0] - self.timestep - futurestep):
             current = data[t:t + self.timestep, :]
-            future = data[t + self.timestep - 1:t + self.timestep - 1 + self.futurestep, :]
+            future = data[t + self.timestep - 1:t + self.timestep - 1 + futurestep, :]
 
             # if future price > current price -> y=1 else y=0
-            current_avg_price = np.average(current[-self.futurestep:, -1])
+            current_avg_price = np.average(current[-futurestep:, -1])
             future_avg_price = np.average(future[:, -1])
             trend = future_avg_price > current_avg_price
 
@@ -49,13 +50,23 @@ class StockDataTransformer:
             x.append(norm_current.reshape(self.time_window_shape))
             y.append(trend)
 
-            if self.plotter:
+            if hasattr(self, 'plotter'):
                 # NOTE: remember not to fit the scaler on future data
                 norm_future = self.__scale(p0, future)
                 norm_future = scaler.transform(norm_future)
                 self.plotter.plot_time_window(symbol, norm_current, norm_future, trend, x[-1])
 
         return np.array(x), np.array(y)
+
+    def __select_features(self, ohlcv):
+        ohlcv = ohlcv[self.features].values
+        return ohlcv[~np.isnan(ohlcv).any(axis=1)]
+
+    def __validate_shape(self, windows):
+        if windows.shape[0] == 0:
+            raise ValueError('insufficient data points')
+        elif windows.shape[1:] != self.time_window_shape:
+            raise ValueError('data shape: expected {}, found {}'.format(self.time_window_shape, x.shape))
 
     @staticmethod
     def __balance(x, y):
