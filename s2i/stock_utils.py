@@ -12,16 +12,16 @@ _DP_URL = 'https://datahub.io/core/s-and-p-500-companies/datapackage.json'
 
 def get_sp500_tickers(limit=0, ratio=0):
     """
-    Returns an array of S&P500 component tickers.
-    If split_ratio is provided, the tickers are shuffled, divided into two disjoint sets and returned as a tuple.
+    Returns a list of S&P500 component tickers.
+    If split_ratio is provided, the tickers are shuffled, divided into two disjoint lists and returned.
 
     Args:
         limit (int): The number of S&P500 component tickers to retrieve (defaults to all).
         ratio (numeric): The ratio of the split between the S&P 500 component tickers.
 
     Returns:
-        array or tuple: If ratio == 0 an array of str is returned.
-                        If ratio != 0 a tuple of disjoint str sets is returned.
+        list:   If ratio == 0 a list of tickers is returned.
+                If ratio != 0 two disjoint tickers lists are returned.
 
     Examples:
         >>>> len(stock_utils.get_sp500_tickers())
@@ -29,7 +29,7 @@ def get_sp500_tickers(limit=0, ratio=0):
         >>>> stock_utils.get_sp500_tickers(limit=5)
         ['AIZ', 'CTXS', 'PBCT', 'CSX', 'PVH']
         >>>> stock_utils.get_sp500_tickers(limit=5, ratio=.6)
-        (['DISCA', 'VRTX', 'WEC'], ['CFG', 'BA'])
+        ['DISCA', 'VRTX', 'WEC'], ['CFG', 'BA']
     """
     assert 0 <= ratio <= 1, 'invalid split ratio, must be in [0,1]'
     package = Package(_DP_URL)
@@ -83,4 +83,6 @@ def _split(tickers, ratio):
 
 def _drop_unsupported_tickers(tickers):
     supported_tickers = set([ticker.encode("utf-8") for ticker in web.get_iex_symbols()['symbol'].values])
+    print supported_tickers
+    print tickers
     return list(set(tickers) & supported_tickers)
