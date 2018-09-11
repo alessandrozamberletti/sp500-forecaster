@@ -9,7 +9,8 @@ class StockDataTransformer:
         self.timestep = timestep
         self.futurestep = futurestep
         self.features = features
-        self.time_window_shape = (sqrt(self.timestep), sqrt(self.timestep), len(self.features))
+        hw = int(sqrt(self.timestep))
+        self.time_window_shape = (hw, hw, len(self.features))
         if debug:
             self.plotter = Plotter(self.features, self.futurestep)
 
@@ -19,11 +20,10 @@ class StockDataTransformer:
         ohlcv = ohlcv[~np.isnan(ohlcv).any(axis=1)]
 
         x, y = self.__build_time_windows(ticker, ohlcv)
-
         if x.shape[0] == 0 or x.shape[1:] != self.time_window_shape:
             raise ValueError('wrong data shape: expected {}, found {}'.format(self.time_window_shape, x.shape))
 
-        return balance(x, y) if balance else x, y
+        return self.__balance(x, y) if balance else x, y
 
     def __build_time_windows(self, symbol, data):
         x = []
@@ -49,7 +49,7 @@ class StockDataTransformer:
             x.append(norm_current.reshape(self.time_window_shape))
             y.append(trend)
 
-            if self.debug:
+            if self.plotter:
                 # NOTE: remember not to fit the scaler on future data
                 norm_future = self.__scale(p0, future)
                 norm_future = scaler.transform(norm_future)
@@ -58,7 +58,7 @@ class StockDataTransformer:
         return np.array(x), np.array(y)
 
     @staticmethod
-    def balance(x, y):
+    def __balance(x, y):
         false_y_count = len(y) - np.count_nonzero(np.array(y))
         true_y_idx, = np.where(y)
 

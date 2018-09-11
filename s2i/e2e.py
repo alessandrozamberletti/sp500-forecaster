@@ -4,6 +4,7 @@ from stock_data_transformer import StockDataTransformer
 from argparse import ArgumentParser
 import os
 import logging
+import numpy as np
 
 TIMESTEP = 144
 FUTURESTEP = 30
@@ -18,13 +19,20 @@ def main(args):
         os.makedirs(OUT_DIR)
 
     train_tickers, _ = stock_utils.get_sp500_tickers(limit=args.stocknum, ratio=.8)
-    log.info(len(train_tickers))
-    transformer = StockDataTransformer(FEATURES, TIMESTEP, FUTURESTEP)
+    transformer = StockDataTransformer(FEATURES, TIMESTEP, FUTURESTEP, debug=True)
     for ticker in train_tickers:
-        log.info(ticker)
         ticker_data = stock_utils.get_ohlcv(ticker)
-        log.info(ticker_data.size)
-        x, y = transformer.split_time_windows(ticker, ticker_data, balance=True, debug=False)
+        log.info('%s - %i', ticker, ticker_data.size)
+        x, y = transformer.split_time_windows(ticker, ticker_data, balance=False)
+        log.info('↓%i - ↑%i - t%i', count_neg(y), count_pos(y), y.shape[0])
+
+
+def count_pos(windows):
+    return np.count_nonzero(windows)
+
+
+def count_neg(windows):
+    return windows.shape[0] - np.count_nonzero(windows)
 
 
 def read_args():
