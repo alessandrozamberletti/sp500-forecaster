@@ -20,8 +20,8 @@ def get_sp500_tickers(limit=0, ratio=0):
         ratio (numeric): The ratio of the split between the S&P 500 component tickers.
 
     Returns:
-        list:   If ratio == 0 a list of tickers is returned.
-                If ratio != 0 two disjoint tickers lists are returned.
+        list: If ratio == 0 a list of tickers is returned.
+              If ratio != 0 two disjoint tickers lists are returned.
 
     Examples:
         >>>> len(stock_utils.get_sp500_tickers())
@@ -46,7 +46,7 @@ def get_ohlcv(tickers):
     Retrieve OHLCV data for the given tickers (data read from IEX).
 
     Args:
-        tickers (object): The tickers for which to retrieve OHLCV information.
+        tickers (list): The tickers for which to retrieve OHLCV information.
 
     Returns:
         dict: Key-value pair dictionary of OHLCV data.
