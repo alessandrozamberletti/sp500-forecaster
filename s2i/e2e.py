@@ -18,10 +18,12 @@ def main(args):
         os.makedirs(OUT_DIR)
 
     train_tickers, _ = stock_utils.get_sp500_tickers(limit=args.stocknum, ratio=.8)
-    tickers_ohlcv_dict = stock_utils.get_ohlcv(train_tickers)
+    log.info(len(train_tickers))
     transformer = StockDataTransformer(FEATURES, TIMESTEP, FUTURESTEP)
-    for ticker in tickers_ohlcv_dict:
-        ticker_data = tickers_ohlcv_dict.get(ticker)
+    for ticker in train_tickers:
+        log.info(ticker)
+        ticker_data = stock_utils.get_ohlcv(ticker)
+        log.info(ticker_data.size)
         x, y = transformer.split_time_windows(ticker, ticker_data, balance=True, debug=False)
 
 

@@ -41,39 +41,28 @@ def get_sp500_tickers(limit=0, ratio=0):
     return tickers if (ratio == 0 or ratio == 1) else _split(tickers, ratio)
 
 
-def get_ohlcv(tickers):
+# TODO: make it work also for list of tickers?
+def get_ohlcv(ticker):
     """
-    Retrieve OHLCV data for the given tickers (data read from IEX).
+    Retrieve OHLCV data for the given ticker (data read from IEX).
 
     Args:
-        tickers (list): The tickers for which to retrieve OHLCV information.
+        ticker (str): The ticker for which to retrieve OHLCV information.
 
     Returns:
-        dict: Key-value pair dictionary of OHLCV data.
+        dataframe: Pandas dataframe of OHLCV data.
 
     Examples:
-        >>> [(k,v.size) for k, v in stock_utils.get_ohlcv(['AAPL', 'MSFT']).iteritems()]
-        [('AAPL', 6295), ('MSFT', 6295)]
-        >>> [(k,v.columns.tolist()) for k, v in stock_utils.get_ohlcv(['NFLX']).iteritems()]
-        [('NFLX', [u'open', u'high', u'low', u'close', u'volume'])]
+        >>> print stock_utils.get_ohlcv('NFLX').columns.tolist()
+        [u'open', u'high', u'low', u'close', u'volume']
     """
     # cannot retrieve data for tickers unsupported by IEX
-    tickers = _drop_unsupported_tickers(tickers)
-    assert len(tickers) > 0, 'none of the given tickers are supported by IEX stock exchange'
+    if not _is_supported(ticker):
+        raise ValueError('{} is not supported by IEX stock exchange'.format(ticker))
     # see: https://pandas-datareader.readthedocs.io/en/latest/remote_data.html#remote-data-iex
     start = datetime.now() - timedelta(days=2000)
-    stock_data = {}
-    for ticker in tickers:
-        # NOTE: extracting too many tickers at once causes key error in IEXDailyReader
-        # noinspection PyBroadException
-        try:
-            ohlcv = web.DataReader(ticker, data_source='iex', start=start)
-        except Exception:
-            # ignore failed calls
-            warnings.warn('no data for TICKER:{}, skipping'.format(ticker), Warning)
-            continue
-        stock_data[ticker] = ohlcv
-    return stock_data
+    ohlcv = web.DataReader(ticker, data_source='iex', start=start)
+    return ohlcv
 
 
 def _split(tickers, ratio):
@@ -81,8 +70,6 @@ def _split(tickers, ratio):
     return tickers[:split_idx], tickers[split_idx:]
 
 
-def _drop_unsupported_tickers(tickers):
+def _is_supported(ticker):
     supported_tickers = set([ticker.encode("utf-8") for ticker in web.get_iex_symbols()['symbol'].values])
-    print supported_tickers
-    print tickers
-    return list(set(tickers) & supported_tickers)
+    return ticker in supported_tickers
