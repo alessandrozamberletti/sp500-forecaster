@@ -23,9 +23,9 @@ def main(args):
     for ticker in train_tickers:
         ohlcv = stock_utils.get_ohlcv(ticker)
         log.info('%s - %i', ticker, ohlcv.size)
-        x, y = transformer.get_train_windows(ticker, ohlcv, balance=False)
+        x, y = transformer.build_train_wins(ticker, ohlcv, balance=False)
         log.info('↓%i - ↑%i - t%i', count_neg(y), count_pos(y), y.shape[0])
-        last_x = transformer.get_latest_window(ticker, ohlcv)
+        last_x = transformer.build_latest_win(ticker, ohlcv)
         print last_x == x[-1, :]
 
 
