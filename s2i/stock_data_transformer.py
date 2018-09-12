@@ -42,8 +42,8 @@ class StockDataTransformer:
             balance (bool): return an equal number of time windows having positive/negative outlook.
 
         Returns:
-            list, list: Time windows are returned as numpy arrays, future trend are returned as a
-                        list of bool values
+            obj, list: Time windows are returned as numpy arrays.
+                       Future trends are returned as a list of bool values
         """
         ohlcv = self.__select_features(ohlcv)
         x, y = self.__build_time_windows(ticker, ohlcv, self.futurestep)
@@ -51,6 +51,16 @@ class StockDataTransformer:
         return self.__balance(x, y) if balance else x, y
 
     def build_latest_win(self, ticker, ohlcv):
+        """Build the most recent time window (timestep days) for the given OHLCV data.
+
+        Args:
+            ticker (str): Ticker name.
+            ohlcv (dataframe): Pandas dataframe of OHLCV data satisfying the following condition:
+                               all(feat in ohlcv.columns.values for feat in features).
+
+        Returns:
+            obj: Time windows are returned as numpy arrays.
+        """
         ohlcv = self.__select_features(ohlcv)
         x, _ = self.__build_time_windows(ticker, ohlcv, 0)
         self.__validate_shape(x)
