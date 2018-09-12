@@ -45,8 +45,8 @@ class StockDataTransformer:
             balance (bool): return an equal number of time windows having positive/negative outlook.
 
         Returns:
-            obj, list: Time windows are returned as numpy arrays.
-                       Future trends are returned as a list of bool values
+            numpy arrays, list: Time windows are returned as numpy arrays.
+                                Future trends are returned as a list of bool values
         """
         ohlcv = self.__select_features(ohlcv)
         x, y = self.__build_time_windows(ticker, ohlcv, self.futurestep)
@@ -62,7 +62,7 @@ class StockDataTransformer:
                                all(feat in ohlcv.columns.values for feat in features).
 
         Returns:
-            obj: Time windows are returned as numpy arrays.
+            numpy arrays, list: Time windows are returned as numpy arrays.
         """
         ohlcv = self.__select_features(ohlcv)
         x, _ = self.__build_time_windows(ticker, ohlcv, 0)
