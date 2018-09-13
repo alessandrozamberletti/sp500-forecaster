@@ -51,7 +51,9 @@ class StockDataTransformer:
         ohlcv = self.__select_features(ohlcv)
         x, y = self.__build_time_windows(ticker, ohlcv, self.futurestep)
         self.__validate_shape(x)
-        return self.__balance(x, y) if balance else x, y
+        if balance:
+            x, y = self.__balance(x, y)
+        return x, y
 
     def build_latest_win(self, ticker, ohlcv):
         """Build the most recent time window (timestep days) for the given OHLCV data.
@@ -113,7 +115,7 @@ class StockDataTransformer:
 
     @staticmethod
     def __balance(x, y):
-        false_y_count = len(y) - np.count_nonzero(np.array(y))
+        false_y_count = y.shape[0] - np.count_nonzero(y)
         true_y_idx, = np.where(y)
 
         np.random.shuffle(true_y_idx)
