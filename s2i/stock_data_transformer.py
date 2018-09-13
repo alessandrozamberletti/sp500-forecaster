@@ -7,18 +7,18 @@ from plotter import Plotter
 class StockDataTransformer:
     """Transform OHLCV data into time windows."""
 
-    def __init__(self, features, timestep, futurestep, debug=False):
+    def __init__(self, features=['high', 'low', 'close'], timestep=144, futurestep=30, debug=False):
         """
         A StockDataTransformer object is built.
         The object generates time windows by selecting timestep days of features
         columns from OHLCV data.
 
         Args:
-            features (list): OHLCV columns to be included into the time windows, list values must be in
-                            ['open', 'high', 'low', 'close', 'volume'].
-            timestep (int): Number of past days to be considered when building time windows.
-            futurestep (int): Number of future days to be considered when computing forecast trends.
-            debug (bool, optional): print additional debug information during window creation.
+            features (list, optional): OHLCV columns to be included into the time windows, list values must be in
+                                       ['open', 'high', 'low', 'close', 'volume'].
+            timestep (int, optional): # of past days to be considered when building time windows, default 144.
+            futurestep (int, optional): # of future days to be considered when computing forecast trends, default 30.
+            debug (bool, optional): print additional debug information during window creation, default False.
 
         Returns:
             obj: A StockDataTransformer object.
