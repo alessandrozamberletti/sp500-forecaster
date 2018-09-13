@@ -1,40 +1,33 @@
 # -*- coding: utf-8 -*-
 import stock_utils
+import nn_utils
 from stock_data_transformer import StockDataTransformer
 from argparse import ArgumentParser
-import os
 import logging
 import numpy as np
 
 TIMESTEP = 144
 FUTURESTEP = 30
 FEATURES = ['high', 'low', 'close']
-OUT_DIR = 'out'
 
 
 def main(args):
     logging.basicConfig(level=logging.INFO)
     log = logging.getLogger('s2i')
-    if not os.path.exists(OUT_DIR):
-        os.makedirs(OUT_DIR)
 
-    train_tickers, _ = stock_utils.get_sp500_tickers(limit=args.stocknum, ratio=.8)
+    train_tickers, test_tickers = stock_utils.get_sp500_tickers(limit=args.stocknum, ratio=.8)
     transformer = StockDataTransformer(FEATURES, TIMESTEP, FUTURESTEP, debug=False)
+    train_x = []
+    train_y = []
     for ticker in train_tickers:
         ohlcv = stock_utils.get_ohlcv(ticker)
         log.info('%s - %i', ticker, ohlcv.size)
-        x, y = transformer.build_train_wins(ticker, ohlcv, balance=False)
-        log.info('↓%i - ↑%i - t%i', count_neg(y), count_pos(y), y.shape[0])
-        last_x = transformer.build_latest_win(ticker, ohlcv)
-        print last_x == x[-1, :]
-
-
-def count_pos(windows):
-    return np.count_nonzero(windows)
-
-
-def count_neg(windows):
-    return windows.shape[0] - np.count_nonzero(windows)
+        x, y = transformer.build_train_wins(ticker, ohlcv, balance=True)
+        train_x.append(x)
+        train_y.append(y)
+    train_x = np.concatenate(train_x)
+    train_y = np.concatenate(train_y)
+    model, _ = nn_utils.build_and_train_cnn(train_x, train_y, epochs=args.epochs, save_loss=True)
 
 
 def read_args():
