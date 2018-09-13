@@ -1,7 +1,6 @@
 from datapackage import Package
 import random
 from datetime import datetime, timedelta
-import warnings
 import pandas as pd
 pd.core.common.is_list_like = pd.api.types.is_list_like
 import pandas_datareader as web
@@ -41,7 +40,6 @@ def get_sp500_tickers(limit=0, ratio=0):
     return tickers if (ratio == 0 or ratio == 1) else _split(tickers, ratio)
 
 
-# TODO: make it work also for list of tickers?
 def get_ohlcv(ticker):
     """
     Retrieve OHLCV data for the given ticker (data read from IEX).

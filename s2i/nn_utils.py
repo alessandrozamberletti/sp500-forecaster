@@ -7,7 +7,7 @@ import matplotlib.patches as mpatches
 import os
 
 
-def build_and_train_cnn(x, y, epochs=100, save_loss=False, base_dir='.'):
+def fit_forecaster(x, y, epochs=100, save_loss=False, base_dir='.'):
     model = Sequential()
     model.add(Conv2D(32, (2, 2), input_shape=x.shape[1:]))
     model.add(Conv2D(32, (2, 2)))
@@ -24,11 +24,10 @@ def build_and_train_cnn(x, y, epochs=100, save_loss=False, base_dir='.'):
     es = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1, mode='auto')
 
     hist = model.fit(x, y, shuffle=True, epochs=epochs, validation_split=0.2, callbacks=[es])
-
     if save_loss:
         _save_loss(hist, base_dir)
 
-    return model, hist
+    return model
 
 
 def _save_loss(data, base_dir):
@@ -40,7 +39,7 @@ def _save_loss(data, base_dir):
     plt.xlabel('epoch')
     plt.legend()
 
-    save_img(os.path.join(base_dir, 'loss.png'))
+    _save_img(os.path.join(base_dir, 'loss.png'))
 
 
 def save_predictions(test_data, predictions):
@@ -69,8 +68,8 @@ def save_predictions(test_data, predictions):
 
         plt.legend(handles=legend)
 
-        save_img('out/{}.png'.format(symbol))
+        _save_img('out/{}.png'.format(symbol))
 
 
-def save_img(name):
+def _save_img(name):
     plt.savefig(name, dpi=300, bbox_inches='tight')

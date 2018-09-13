@@ -6,28 +6,28 @@ from argparse import ArgumentParser
 import logging
 import numpy as np
 
-TIMESTEP = 144
-FUTURESTEP = 30
-FEATURES = ['high', 'low', 'close']
-
 
 def main(args):
     logging.basicConfig(level=logging.INFO)
     log = logging.getLogger('s2i')
 
     train_tickers, test_tickers = stock_utils.get_sp500_tickers(limit=args.stocknum, ratio=.8)
-    transformer = StockDataTransformer(FEATURES, TIMESTEP, FUTURESTEP, debug=False)
+    transformer = StockDataTransformer(debug=args.debug)
+    train_x, train_y = get_data(transformer, train_tickers)
+    forecaster = nn_utils.fit_forecaster(train_x, train_y, epochs=args.epochs, save_loss=args.debug)
+    # predict on test data
+    #   save predictions vs gt
+
+
+def get_data(transformer, tickers):
     train_x = []
     train_y = []
-    for ticker in train_tickers:
+    for ticker in tickers:
         ohlcv = stock_utils.get_ohlcv(ticker)
-        log.info('%s - %i', ticker, ohlcv.size)
         x, y = transformer.build_train_wins(ticker, ohlcv, balance=True)
         train_x.append(x)
         train_y.append(y)
-    train_x = np.concatenate(train_x)
-    train_y = np.concatenate(train_y)
-    model, _ = nn_utils.build_and_train_cnn(train_x, train_y, epochs=args.epochs, save_loss=True)
+    return np.concatenate(train_x), np.concatenate(train_y)
 
 
 def read_args():
