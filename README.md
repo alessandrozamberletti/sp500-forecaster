@@ -17,42 +17,21 @@ optional arguments:
 ```
 
 ## Pipeline
-<details><summary>1. gather S&P500 HLC data and random split into train/test</summary>
-<p>
-  
+1. gather S&P500 HLC data and split into train/test
 ```console
-Using TensorFlow backend.
 INFO:stock2image:Retrieving S&P500 data
 INFO:stock2image:404 train symbols - 101 test symbols
 INFO:stock2image:Computing time windows
 ```
 
-</p>
-</details>
-
-<details><summary>2. transform normalized HLC train data into (12,12,3) images</summary>
-<p>
-  
+2. transform normalized OHLCV train data into train patches
 <img src="./res/create.gif" width="500" height="375" />
 
-</p>
-</details>
-
-<details><summary>3. train model</summary>
-<p>
-  
+3. train forecaster
 <img src="./res/train.gif" width="500" height="375" />
 
-</p>
-</details>
-
-<details><summary>4. evaluate model</summary>
-<p>
-  
+4. evaluate against gt
 <img src="./res/evaluate.gif" width="500" height="375" />
-
-</p>
-</details>
 
 ## Requirements
 ```console
