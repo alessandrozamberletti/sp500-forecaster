@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import stock_utils
-import nn_utils
 from stock_data_transformer import StockDataTransformer
+from forecaster import Forecaster
 from argparse import ArgumentParser
 import logging
 import numpy as np
@@ -13,10 +13,13 @@ def main(args):
 
     train_tickers, test_tickers = stock_utils.get_sp500_tickers(limit=args.stocknum, ratio=.8)
     transformer = StockDataTransformer(debug=args.debug)
-    train_x, train_y = get_data(transformer, train_tickers)
-    forecaster = nn_utils.fit_forecaster(train_x, train_y, epochs=args.epochs, save_loss=args.debug)
-    # predict on test data
-    #   save predictions vs gt
+    x, y = get_data(transformer, train_tickers)
+    forecaster = Forecaster(transformer, debug=args.debug)
+    forecaster.fit_to_data(x, y, epochs=args.epochs)
+    for ticker in test_tickers:
+        ohlcv = stock_utils.get_ohlcv(ticker)
+        x, y = transformer.build_train_wins(ticker, ohlcv, balance=False)
+        forecaster.evaluate(x, y, ohlcv, ticker)
 
 
 def get_data(transformer, tickers):
