@@ -1,4 +1,4 @@
-# SP500-forecaster
+# sp500-forecaster
 * __task:__ predict if the next 30 days mean close price will be higher/lower than the past 30 days mean close price
 * __input:__ past 144 days ohlcv data
 
