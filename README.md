@@ -1,7 +1,8 @@
 # sp500-forecaster
-* __task:__ predict if the next 30 days avg close price will be higher/lower than the past 30 days avg close price
-* __input:__ high/low/close/volume (HLCV) data from the past 144 days
+* __task:__ predict if the next 30 days mean close price will be higher/lower than the past 30 days mean close price
+* __input:__ past 144 days ohlcv data
 
+## Create+train+evaluate+save forecaster
 ```console
 usage: create.py [-h] [-o OUTPUT] [-v] [-d] stocknum epochs
 
@@ -18,7 +19,9 @@ optional arguments:
   -d, --debug           visual train info, default false
 ```
 
-## Pipeline
+## Load a forecaster h5 model and predict future prices
+
+## Create.py visual overview
 1. gather S&P500 HLC data and split into train/test
 ```console
 sp500forecaster [DEBUG]: collected 404 train, 101 test sp500 stocks
@@ -26,13 +29,13 @@ sp500forecaster [DEBUG]: building train time windows
 ```
 
 2. transform normalized OHLCV train data into train patches
-<img src="./res/create.gif" width="500" height="375" />
+<img src="./res/create.gif" width="550" height="375" />
 
 3. train forecaster
-<img src="./res/train.gif" width="500" height="375" />
+<img src="./res/train.gif" width="550" height="375" />
 
-4. evaluate against gt
-<img src="./res/evaluate.gif" width="500" height="375" />
+4. evaluate against ground-truth
+<img src="./res/evaluate.gif" width="550" height="375" />
 
 ## Requirements
 ```console
