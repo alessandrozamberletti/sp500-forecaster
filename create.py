@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from argparse import ArgumentParser
-from s2i import log, set_console_logger
-from s2i.stock_data_transformer import StockDataTransformer
-from s2i.forecaster import Forecaster
-from s2i.stock_utils import get_sp500_tickers, get_ohlcv
+from stock_forecaster import log, set_console_logger
+from stock_forecaster.stock_data_transformer import StockDataTransformer
+from stock_forecaster.forecaster import Forecaster
+from stock_forecaster.utils import get_sp500_tickers, get_ohlcv
 import numpy as np
 import os
 from datetime import datetime
@@ -13,7 +13,7 @@ def create(args):
     train_tickers, test_tickers = get_sp500_tickers(limit=args.stocknum, ratio=.8)
     log.debug("collected %i train, %i test sp500 stocks", len(train_tickers), len(test_tickers))
 
-    log.debug('building training time windows')
+    log.debug('building train time windows')
     transformer = StockDataTransformer(debug=args.debug)
     x, y = get_train_data(transformer, train_tickers)
 
