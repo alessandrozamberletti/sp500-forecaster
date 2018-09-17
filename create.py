@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from stock_forecaster.args import parse_create_args
-from stock_forecaster import log, set_console_logger
-from stock_forecaster.stock_data_transformer import StockDataTransformer
-from stock_forecaster.forecaster import Forecaster
-from stock_forecaster.utils import get_sp500_tickers, get_ohlcv, tickers2windows
+from sp500forecaster.args import parse_create_args
+from sp500forecaster import log, set_console_logger
+from sp500forecaster.stock_data_transformer import StockDataTransformer
+from sp500forecaster.forecaster import Forecaster
+from sp500forecaster.utils import get_sp500_tickers, get_ohlcv, tickers2windows
 from datetime import datetime
 import os
 

@@ -76,7 +76,7 @@ def tickers2windows(tickers, transformer):
         np.array, np.array: Time windows with their respective ground-truths (False=neg. forecast, True=pos. forecast).
 
     Examples:
-        >>>> from stock_forecaster.stock_data_transformer import StockDataTransformer
+        >>>> from sp500forecaster.stock_data_transformer import StockDataTransformer
         >>>> x, y = utils.tickers2windows(['AAPL'], StockDataTransformer())
         >>>> x.shape[0] == y.shape[0]
         True
