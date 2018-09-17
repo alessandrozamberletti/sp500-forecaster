@@ -21,7 +21,7 @@ class Forecaster(Sequential):
         self.compile(loss='binary_crossentropy', optimizer=opt, metrics=['accuracy'])
         hist = self.fit(x, y, shuffle=True, epochs=epochs, validation_split=validation_split, callbacks=[es])
         if self.debug:
-            self.__save_loss(self.debug_dir, hist)
+            self.__save_loss(hist)
         return self
 
     def evaluate(self, x, y, ohlcv, ticker):
