@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from argparse import ArgumentParser
+from stock_forecaster.args import parse_create_args
 from stock_forecaster import log, set_console_logger
 from stock_forecaster.stock_data_transformer import StockDataTransformer
 from stock_forecaster.forecaster import Forecaster
@@ -34,19 +34,8 @@ def create(args):
     forecaster.save(model_path)
 
 
-def read_args():
-    parser = ArgumentParser(description='Create future stock trend predictor.')
-    parser.add_argument('stocknum', type=int, help='number of sp500 stocks to retrieve (0=all)')
-    parser.add_argument('epochs', type=int, help='number of training epochs')
-    parser.add_argument('-o', '--output', default='out', help='path to output directory (default ./out)')
-    parser.add_argument('-v', '--verbose', action='store_true', default=True, help='verbose output, default true')
-    parser.add_argument('-d', '--debug', action='store_true', default=False, help='visual train info, default false')
-
-    return parser.parse_args()
-
-
 if __name__ == '__main__':
-    args = read_args()
+    args = parse_create_args()
     if args.verbose:
         set_console_logger()
     if not os.path.exists(args.output):
