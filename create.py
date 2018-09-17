@@ -36,6 +36,7 @@ def create(args):
 
 if __name__ == '__main__':
     args = parse_create_args()
+
     if args.verbose:
         set_console_logger()
     if not os.path.exists(args.output):

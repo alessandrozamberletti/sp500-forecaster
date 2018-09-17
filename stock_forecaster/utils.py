@@ -24,11 +24,11 @@ def get_sp500_tickers(limit=0, ratio=0):
               If ratio != 0 two disjoint tickers lists are returned.
 
     Examples:
-        >>>> len(stock_utils.get_sp500_tickers())
+        >>>> len(utils.get_sp500_tickers())
         505
-        >>>> stock_utils.get_sp500_tickers(limit=5)
+        >>>> utils.get_sp500_tickers(limit=5)
         ['AIZ', 'CTXS', 'PBCT', 'CSX', 'PVH']
-        >>>> stock_utils.get_sp500_tickers(limit=5, ratio=.6)
+        >>>> utils.get_sp500_tickers(limit=5, ratio=.6)
         ['DISCA', 'VRTX', 'WEC'], ['CFG', 'BA']
     """
     assert 0 <= ratio <= 1, 'invalid split ratio, must be in [0,1]'
@@ -52,7 +52,7 @@ def get_ohlcv(ticker):
         dataframe: Pandas dataframe of OHLCV data.
 
     Examples:
-        >>> print stock_utils.get_ohlcv('NFLX').columns.tolist()
+        >>> print utils.get_ohlcv('NFLX').columns.tolist()
         [u'open', u'high', u'low', u'close', u'volume']
     """
     # cannot retrieve data for tickers unsupported by IEX
@@ -65,6 +65,25 @@ def get_ohlcv(ticker):
 
 
 def tickers2windows(tickers, transformer):
+    """
+    Transform a list of iex-supported stock symbols into a train dataset using the provided transformer.
+
+    Args:
+        tickers (list): a list of iex-supported symbols (see get_sp500_tickers function).
+        transformer (object): A StockDataTransformer object, used to convert ohlcv data to time windows.
+
+    Returns:
+        np.array, np.array: Time windows with their respective ground-truths (False=neg. forecast, True=pos. forecast).
+
+    Examples:
+        >>>> from stock_forecaster.stock_data_transformer import StockDataTransformer
+        >>>> x, y = utils.tickers2windows(['AAPL'], StockDataTransformer())
+        >>>> x.shape[0] == y.shape[0]
+        True
+        >>>> import numpy as np
+        >>>> np.unique(y)
+        array([False,  True])
+    """
     train_x = []
     train_y = []
     for ticker in tickers:
