@@ -9,11 +9,11 @@ from sklearn import metrics
 
 
 class Forecaster(Sequential):
-    def __init__(self, trasformer, debug=False, debug_dir='.'):
+    def __init__(self, trasformer, debug=False, out_dir='.'):
         super(Sequential, self).__init__()
         self.trasformer = trasformer
         self.debug = debug
-        self.debug_dir = debug_dir
+        self.out_dir = out_dir
         self.__setup_architecture()
 
     def fit_to_data(self, x, y, epochs=100, validation_split=0.2):
@@ -23,7 +23,7 @@ class Forecaster(Sequential):
         hist = self.fit(x, y, shuffle=True, epochs=epochs, validation_split=validation_split, callbacks=[es])
         if self.debug:
             self.__save_loss(hist)
-        return self
+        return hist
 
     def evaluate(self, x, y, ohlcv, ticker):
         preds = self.predict_classes(x)
@@ -78,5 +78,5 @@ class Forecaster(Sequential):
         self.__save_img('loss')
 
     def __save_img(self, im_name):
-        fn = os.path.join(self.debug_dir, '{}.png'.format(im_name))
+        fn = os.path.join(self.out_dir, '{}.png'.format(im_name))
         plt.savefig(fn, dpi=300, bbox_inches='tight')
