@@ -12,17 +12,20 @@ def main(args):
         set_console_logger()
 
     train_tickers, test_tickers = get_sp500_tickers(limit=args.stocknum, ratio=.8)
-    log.debug("sp500 tickers: %i train - %i test", len(train_tickers), len(test_tickers))
+    log.debug("COLLECTIONG SP500 STOCKS >> %i train, %i test", len(train_tickers), len(test_tickers))
 
     transformer = StockDataTransformer(debug=args.debug)
     x, y = get_data(transformer, train_tickers)
-    log.debug("%i train time windows", x.shape[0])
+    forecaster = Forecaster(transformer, debug=args.verbose)
 
-    forecaster = Forecaster(transformer, debug=args.verbose).fit_to_data(x, y, epochs=args.epochs)
+    log.debug("TRAINING STOCK FORECASTER >> %i train time windows", x.shape[0])
+    forecaster.fit_to_data(x, y, epochs=args.epochs)
+
     for ticker in test_tickers:
         ohlcv = get_ohlcv(ticker)
         x, y = transformer.build_train_wins(ticker, ohlcv, balance=False)
-        forecaster.evaluate(x, y, ohlcv, ticker)
+        oa = forecaster.evaluate(x, y, ohlcv, ticker)
+        log.debug("EVALUATION >> ticker: %s, oa: %.2f", ticker, oa)
 
 
 def get_data(transformer, tickers):

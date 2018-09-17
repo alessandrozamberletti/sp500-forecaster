@@ -5,6 +5,7 @@ from keras.callbacks import EarlyStopping
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import os
+from sklearn import metrics
 
 
 class Forecaster(Sequential):
@@ -51,6 +52,8 @@ class Forecaster(Sequential):
         plt.legend(handles=legend)
 
         self.__save_img(ticker)
+
+        return metrics.accuracy_score(y, preds)
 
     def __setup_architecture(self):
         self.add(Conv2D(32, (2, 2), input_shape=self.trasformer.time_window_shape))

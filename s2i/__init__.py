@@ -7,7 +7,7 @@ if not log.handlers:
     log.addHandler(NullHandler())
 
 
-def set_console_logger(level=logging.DEBUG, format_string="%(asctime)s %(name)s [%(levelname)s]:%(message)s"):
+def set_console_logger(level=logging.DEBUG, format_string="%(asctime)s %(name)s [%(levelname)s]: %(message)s"):
     log.setLevel(level)
     sh = logging.StreamHandler()
     sh.setLevel(level)
