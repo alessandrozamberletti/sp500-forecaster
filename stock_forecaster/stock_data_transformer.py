@@ -31,7 +31,7 @@ class StockDataTransformer:
         if debug:
             self.plotter = Plotter(self.features, self.futurestep)
 
-    def build_train_wins(self, ticker, ohlcv, balance=False):
+    def build_train_windows(self, ticker, ohlcv, balance=False):
         """Transform OHLCV data into a training dataset of time windows and future trends.
 
         Each time window is returned together with a bool value specifying if during the following

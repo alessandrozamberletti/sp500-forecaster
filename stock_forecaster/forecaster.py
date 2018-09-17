@@ -51,9 +51,7 @@ class Forecaster(Sequential):
 
         plt.legend(handles=legend)
 
-        self.__save_img(ticker)
-
-        return metrics.accuracy_score(y, preds)
+        return metrics.accuracy_score(y, preds), self.__save_img(ticker)
 
     def __setup_architecture(self):
         self.add(Conv2D(32, (2, 2), input_shape=self.trasformer.time_window_shape))
@@ -80,3 +78,4 @@ class Forecaster(Sequential):
     def __save_img(self, im_name):
         fn = os.path.join(self.out_dir, '{}.png'.format(im_name))
         plt.savefig(fn, dpi=300, bbox_inches='tight')
+        return fn

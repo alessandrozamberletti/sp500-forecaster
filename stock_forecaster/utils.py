@@ -1,6 +1,7 @@
 from datapackage import Package
 import random
 from datetime import datetime, timedelta
+import numpy as np
 import pandas as pd
 pd.core.common.is_list_like = pd.api.types.is_list_like
 import pandas_datareader as web
@@ -61,6 +62,17 @@ def get_ohlcv(ticker):
     start = datetime.now() - timedelta(days=2000)
     ohlcv = web.DataReader(ticker, data_source='iex', start=start)
     return ohlcv
+
+
+def tickers2windows(tickers, transformer):
+    train_x = []
+    train_y = []
+    for ticker in tickers:
+        ohlcv = get_ohlcv(ticker)
+        x, y = transformer.build_train_windows(ticker, ohlcv, balance=True)
+        train_x.append(x)
+        train_y.append(y)
+    return np.concatenate(train_x), np.concatenate(train_y)
 
 
 def _split(tickers, ratio):
