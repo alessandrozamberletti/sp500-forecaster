@@ -1,27 +1,28 @@
-# stock2image
+# sp500-forecaster
 * __task:__ predict if the next 30 days avg close price will be higher/lower than the past 30 days avg close price
 * __input:__ high/low/close/volume (HLCV) data from the past 144 days
 
 ```console
-usage: main.py [-h] [-d] stocknum epochs
+usage: create.py [-h] [-o OUTPUT] [-v] [-d] stocknum epochs
 
-Predict future stock trend.
+Create a model to predict future stock trends of SP500 companies.
 
 positional arguments:
-  stocknum     number of sp500 stocks to retrieve (0=all)
-  epochs       number of training epochs
+  stocknum              number of sp500 stocks to retrieve (0=all)
+  epochs                number of training epochs
 
 optional arguments:
-  -h, --help   show this help message and exit
-  -d, --debug  show visual information
+  -h, --help            show this help message and exit
+  -o OUTPUT,            path to output directory (default ./out)
+  -v, --verbose         verbose output, default true
+  -d, --debug           visual train info, default false
 ```
 
 ## Pipeline
 1. gather S&P500 HLC data and split into train/test
 ```console
-INFO:stock2image:Retrieving S&P500 data
-INFO:stock2image:404 train symbols - 101 test symbols
-INFO:stock2image:Computing time windows
+sp500forecaster [DEBUG]: collected 404 train, 101 test sp500 stocks
+sp500forecaster [DEBUG]: building train time windows
 ```
 
 2. transform normalized OHLCV train data into train patches
@@ -35,10 +36,10 @@ INFO:stock2image:Computing time windows
 
 ## Requirements
 ```console
-az@ubuntu:~/stock2image$ cat /etc/issue*
+az@ubuntu:~/sp500-forecaster$ cat /etc/issue*
 Ubuntu 16.04.4 LTS
-az@ubuntu:~/stock2image$ python --version
+az@ubuntu:~/sp500-forecaster$ python --version
 Python 2.7.12
-az@ubuntu:~/stock2image$ pip install -r stock2image/requirements.txt
+az@ubuntu:~/sp500-forecaster$ pip install -r stock2image/requirements.txt
 ...
 ```
