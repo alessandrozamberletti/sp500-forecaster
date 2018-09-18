@@ -11,7 +11,7 @@
 ```console
 usage: create.py [-h] [-o OUTPUT] [-v] [-d] stocknum epochs
 
-Create a model to predict future stock trends of SP500 companies.
+Create a model to predict future stock trends.
 
 positional arguments:
   stocknum              number of sp500 stocks to retrieve (0=all)
