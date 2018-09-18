@@ -1,6 +1,11 @@
 # sp500-forecaster
-* __task:__ predict if the next 30 days mean close price will be higher/lower than the past 30 days mean close price
-* __input:__ past 144 days ohlcv data
+* For a given stock, predict if the mean close price for the next 30 days will be higher/lower than the past 30 days mean close price. 
+* Prediction are generated using IEX OHLCV data from the past 144 days.
+* The classifier is trained using IEX OHLCV data from S&P500 listed companies.
+
+<p align="center"> 
+  <img src="./res/create.gif" alt="margi" width="550" height="375"/>
+</p>
 
 ## Create+train+evaluate+save forecaster
 ```console
