@@ -11,7 +11,7 @@ _DP_URL = 'https://datahub.io/core/s-and-p-500-companies/datapackage.json'
 _IEX_TICKERS = set([ticker.encode("utf-8") for ticker in web.get_iex_symbols()['symbol'].values])
 
 
-def get_sp500_tickers(limit=0, ratio=0):
+def get_sp500_tickers(limit=0, ratio=0, iex_supported=True):
     """
     Returns a list of S&P500 component tickers.
     If split_ratio is provided, the tickers are shuffled, divided into two disjoint lists and returned.
@@ -19,6 +19,7 @@ def get_sp500_tickers(limit=0, ratio=0):
     Args:
         limit (int): The number of S&P500 component tickers to retrieve (defaults to all).
         ratio (numeric): The ratio of the split between the S&P 500 component tickers.
+        iex_supported (bool): If True then only iex-supported SP500 symbols are returned (default True).
 
     Returns:
         list: If ratio == 0 a list of tickers is returned.
@@ -37,6 +38,8 @@ def get_sp500_tickers(limit=0, ratio=0):
     for resource in package.resources:
         if resource.descriptor['datahub']['type'] == 'derived/csv':
             tickers = [ticker[0].encode('utf-8') for ticker in resource.read()]
+    if iex_supported:
+        tickers = list(set(tickers) & _IEX_TICKERS)
     if limit != 0:
         tickers = random.sample(tickers, limit)
     return tickers if (ratio == 0 or ratio == 1) else _split(tickers, ratio)
@@ -61,8 +64,7 @@ def get_ohlcv(ticker):
         raise ValueError('{} is not supported by IEX stock exchange'.format(ticker))
     # see: https://pandas-datareader.readthedocs.io/en/latest/remote_data.html#remote-data-iex
     start = datetime.now() - timedelta(days=2000)
-    ohlcv = web.DataReader(ticker, data_source='iex', start=start)
-    return ohlcv
+    return web.DataReader(ticker, data_source='iex', start=start)
 
 
 def tickers2windows(tickers, transformer):
