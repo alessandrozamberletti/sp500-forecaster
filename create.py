@@ -29,9 +29,9 @@ def create(args):
 
     last_loss = hist.history['val_acc'][-1]
     fn = 'n{}_acc{:.2f}_{}.h5'.format(args.stocknum, last_loss, datetime.now().strftime("%Y%m%d%H%M%S"))
-    model_path = os.path.join(args.output, fn)
-    log.debug("saving trained stock forecaster to '%s'", model_path)
-    forecaster.save(model_path)
+    weights_path = os.path.join(args.output, fn)
+    log.debug("saving trained weights to '%s'", weights_path)
+    forecaster.save_weights(weights_path)
 
 
 if __name__ == '__main__':

@@ -69,7 +69,7 @@ class StockDataTransformer:
         ohlcv = self.__select_features(ohlcv)
         x, _ = self.__build_time_windows(ticker, ohlcv, 0)
         self.__validate_shape(x)
-        return x[-1, :]
+        return np.expand_dims(x[-1, :], axis=0)
 
     def __build_time_windows(self, symbol, data, futurestep):
         x = []

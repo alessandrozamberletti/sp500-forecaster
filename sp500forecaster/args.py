@@ -12,7 +12,7 @@ def parse_create_args():
 
 def parse_predict_args():
     parser = ArgumentParser(description='Predict future stock trends using a pretrained forecaster.')
-    parser.add_argument('model', type=str, help='path to h5 forecaster model file')
+    parser.add_argument('weights', type=str, help='path to h5 forecaster weights')
     parser.add_argument('symbols', nargs='+', help='list of 1 or more iex-supported tickers')
     parser = _add_common(parser)
     return parser.parse_args()

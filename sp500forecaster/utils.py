@@ -8,6 +8,7 @@ import pandas_datareader as web
 
 
 _DP_URL = 'https://datahub.io/core/s-and-p-500-companies/datapackage.json'
+_IEX_TICKERS = set([ticker.encode("utf-8") for ticker in web.get_iex_symbols()['symbol'].values])
 
 
 def get_sp500_tickers(limit=0, ratio=0):
@@ -56,7 +57,7 @@ def get_ohlcv(ticker):
         [u'open', u'high', u'low', u'close', u'volume']
     """
     # cannot retrieve data for tickers unsupported by IEX
-    if not _is_supported(ticker):
+    if not is_iex_supported(ticker):
         raise ValueError('{} is not supported by IEX stock exchange'.format(ticker))
     # see: https://pandas-datareader.readthedocs.io/en/latest/remote_data.html#remote-data-iex
     start = datetime.now() - timedelta(days=2000)
@@ -94,11 +95,23 @@ def tickers2windows(tickers, transformer):
     return np.concatenate(train_x), np.concatenate(train_y)
 
 
+def is_iex_supported(ticker):
+    """
+    Check whether a ticker is supported by iex.
+
+    Args:
+        ticker (str): stock ticker.
+
+    Returns:
+        bool: True if ticker is supported by iex, False otherwise.
+
+    Examples:
+        >>>> utils.is_supported('AAPL')
+        True
+    """
+    return ticker in _IEX_TICKERS
+
+
 def _split(tickers, ratio):
     split_idx = int(len(tickers) * ratio)
     return tickers[:split_idx], tickers[split_idx:]
-
-
-def _is_supported(ticker):
-    supported_tickers = set([ticker.encode("utf-8") for ticker in web.get_iex_symbols()['symbol'].values])
-    return ticker in supported_tickers
