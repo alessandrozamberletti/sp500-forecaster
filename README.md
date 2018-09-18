@@ -37,21 +37,32 @@ optional arguments:
 
 ```
 
-## Create.py visual overview
-1. gather S&P500 HLC data and split into train/test
+## create.py visual overview
+1. gather S&P500 OHLCV data and split into train/test
 ```console
 sp500forecaster [DEBUG]: collected 404 train, 101 test sp500 stocks
 sp500forecaster [DEBUG]: building train time windows
 ```
 
-2. transform normalized OHLCV train data into train patches
+2. transform normalized OHLCV train data into time windows
 <img src="./res/create.gif" width="550" height="375" />
 
 3. train forecaster
 <img src="./res/train.gif" width="550" height="375" />
 
-4. evaluate against ground-truth
+4. evaluate on test time windows
 <img src="./res/evaluate.gif" width="550" height="375" />
+
+## predict.py
+```console
+python predict.py out/n25_acc0.72_20180916225602.h5 AAPL MMM
+Using TensorFlow backend.
+sp500forecaster [DEBUG]: symbols: ['AAPL', 'MMM']
+sp500forecaster [DEBUG]: processing AAPL
+sp500forecaster [DEBUG]: positive future prediction for symbol AAPL
+sp500forecaster [DEBUG]: processing MMM
+sp500forecaster [DEBUG]: positive future prediction for symbol MMM
+```
 
 ## Requirements
 ```console
