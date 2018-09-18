@@ -19,7 +19,23 @@ optional arguments:
   -d, --debug           visual train info, default false
 ```
 
-## Load a forecaster h5 model and predict future prices
+## Load h5 model weights and predict future prices
+```console
+usage: predict.py [-h] [-o OUTPUT] [-v] weights symbols [symbols ...]
+
+Predict future stock trends using a pretrained forecaster.
+
+positional arguments:
+  weights               path to h5 forecaster weights
+  symbols               list of 1 or more iex-supported tickers
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        path to output directory (default ./out)
+  -v, --verbose         verbose output, default true
+
+```
 
 ## Create.py visual overview
 1. gather S&P500 HLC data and split into train/test
