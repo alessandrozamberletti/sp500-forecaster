@@ -53,7 +53,7 @@ Pretrained weights:
 
 weights | backtest_oa | ```stocknum``` | ```epochs``` | samples
 ------------- | ------------- | ------------- | ------------- | -------------
-[n0_acc0.75_20180918231542.h5](res/n0_acc0.75_20180918231542.h5)  | 0.79 | all (0) | 10 | ~259k train, ~65k val, ~85k test
+[n0_acc0.75_20180918231542.h5](res/n0_acc0.75_20180918231542.h5)  | 0.79 | 0 (all) | 10 | ~259k train, ~65k val, ~85k test
 
 ## ```predict.py```: load h5 model weights and predict future prices
 
