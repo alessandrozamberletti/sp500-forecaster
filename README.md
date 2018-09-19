@@ -66,7 +66,7 @@ sp500forecaster [DEBUG]: building train time windows
 
 ## predict.py
 ```console
-python predict.py out/n25_acc0.72_20180916225602.h5 AAPL MMM
+python predict.py res/n0_acc0.75_20180918231542.h5 AAPL MMM
 Using TensorFlow backend.
 sp500forecaster [DEBUG]: symbols: ['AAPL', 'MMM']
 sp500forecaster [DEBUG]: processing AAPL
