@@ -7,7 +7,32 @@
   <img src="./res/create.gif" alt="margi" width="550" height="375"/>
 </p>
 
-## Create+train+evaluate+save forecaster
+## ```create.py```: create+train+evaluate+save forecaster
+
+<details><summary>algorithm details (click to expand)</summary></a>
+<p>
+
+1. gather S&P500 OHLCV data and split into train/test
+```console
+sp500forecaster [DEBUG]: collected 404 train, 101 test sp500 stocks
+sp500forecaster [DEBUG]: building train time windows
+```
+
+2. transform normalized OHLCV train data into time windows
+<img src="./res/create.gif" width="550" height="375" />
+
+3. train forecaster
+<img src="./res/train.gif" width="550" height="375" />
+
+4. evaluate on test time windows
+
+<img src="./res/evaluate.gif" width="550" height="375" />
+
+</p>
+</details>
+
+<br/>
+
 ```console
 usage: create.py [-h] [-o OUTPUT] [-v] [-d] stocknum epochs
 
@@ -24,13 +49,14 @@ optional arguments:
   -d, --debug           visual train info, default false
 ```
 
-* pretrained weights:
+Pretrained weights:
 
 weights | backtest_oa | ```stocknum``` | ```epochs``` | samples
 ------------- | ------------- | ------------- | ------------- | -------------
 [n0_acc0.75_20180918231542.h5](res/n0_acc0.75_20180918231542.h5)  | 0.79 | all (0) | 10 | ~259k train, ~65k val, ~85k test
 
-## Load h5 model weights and predict future prices
+## ```predict.py```: load h5 model weights and predict future prices
+
 ```console
 usage: predict.py [-h] [-o OUTPUT] [-v] weights symbols [symbols ...]
 
@@ -48,25 +74,9 @@ optional arguments:
 
 ```
 
-## create.py visual overview
-1. gather S&P500 OHLCV data and split into train/test
+Example:
 ```console
-sp500forecaster [DEBUG]: collected 404 train, 101 test sp500 stocks
-sp500forecaster [DEBUG]: building train time windows
-```
-
-2. transform normalized OHLCV train data into time windows
-<img src="./res/create.gif" width="550" height="375" />
-
-3. train forecaster
-<img src="./res/train.gif" width="550" height="375" />
-
-4. evaluate on test time windows
-<img src="./res/evaluate.gif" width="550" height="375" />
-
-## predict.py
-```console
-python predict.py res/n0_acc0.75_20180918231542.h5 AAPL MMM
+az@ubuntu:~/sp500-forecaster$ python predict.py res/n0_acc0.75_20180918231542.h5 AAPL MMM
 Using TensorFlow backend.
 sp500forecaster [DEBUG]: symbols: ['AAPL', 'MMM']
 sp500forecaster [DEBUG]: processing AAPL
