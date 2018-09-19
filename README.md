@@ -24,6 +24,12 @@ optional arguments:
   -d, --debug           visual train info, default false
 ```
 
+* pretrained weights:
+
+weights | backtest_oa | ```stocknum``` | ```epochs``` | samples
+------------- | ------------- | ------------- | ------------- | -------------
+[n0_acc0.75_20180918231542.h5](res/n0_acc0.75_20180918231542.h5)  | 0.79 | all (0) | 10 | ~259k train, ~65k val, ~85k test
+
 ## Load h5 model weights and predict future prices
 ```console
 usage: predict.py [-h] [-o OUTPUT] [-v] weights symbols [symbols ...]
