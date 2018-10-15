@@ -91,6 +91,6 @@ $ cat /etc/issue*
 Ubuntu 16.04.4 LTS
 $ python --version
 Python 2.7.12
-$ pip install -r stock2image/requirements.txt
+$ pip install -r requirements.txt
 ...
 ```
