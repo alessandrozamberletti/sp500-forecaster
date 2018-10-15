@@ -76,7 +76,7 @@ optional arguments:
 
 Example:
 ```console
-az@ubuntu:~/sp500-forecaster$ python predict.py res/n0_acc0.75_20180918231542.h5 AAPL MMM
+$ python predict.py res/n0_acc0.75_20180918231542.h5 AAPL MMM
 Using TensorFlow backend.
 sp500forecaster [DEBUG]: symbols: ['AAPL', 'MMM']
 sp500forecaster [DEBUG]: processing AAPL
@@ -87,10 +87,10 @@ sp500forecaster [DEBUG]: positive future prediction for symbol MMM
 
 ## Requirements
 ```console
-az@ubuntu:~/sp500-forecaster$ cat /etc/issue*
+$ cat /etc/issue*
 Ubuntu 16.04.4 LTS
-az@ubuntu:~/sp500-forecaster$ python --version
+$ python --version
 Python 2.7.12
-az@ubuntu:~/sp500-forecaster$ pip install -r stock2image/requirements.txt
+$ pip install -r stock2image/requirements.txt
 ...
 ```
