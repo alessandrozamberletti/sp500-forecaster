@@ -1,7 +1,6 @@
 # sp500-forecaster
-* For a given stock, predict if the mean close price for the next 30 days will be higher/lower than the past 30 days mean close price. 
-* Prediction are generated using IEX OHLCV data from the past 144 days.
-* The classifier is trained using IEX OHLCV data from S&P500 listed companies.
+
+Predict if the next 30 days mean close price of a certain stock will be higher/lower than it was during the past 30 days. 
 
 <p align="center"> 
   <img src="./res/create.gif" alt="margi" width="550" height="375"/>
@@ -18,10 +17,10 @@ sp500forecaster [DEBUG]: collected 404 train, 101 test sp500 stocks
 sp500forecaster [DEBUG]: building train time windows
 ```
 
-2. transform normalized OHLCV train data into time windows
+2. transform normalized OHLCV train data into visual time windows
 <img src="./res/create.gif" width="550" height="375" />
 
-3. train forecaster
+3. train CNN forecaster
 <img src="./res/train.gif" width="550" height="375" />
 
 4. evaluate on test time windows
